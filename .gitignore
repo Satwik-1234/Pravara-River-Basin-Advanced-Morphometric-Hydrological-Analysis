@@ -1,0 +1,106 @@
+# =============================================================================
+# .gitignore — Pravara Basin Morphometry
+# =============================================================================
+
+# ── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+parts/
+var/
+sdist/
+wheels/
+*.egg-link
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+.installed.cfg
+
+# ── Virtual environments ───────────────────────────────────────────────────
+venv/
+ENV/
+env/
+.venv/
+.env
+.pyenv/
+
+# ── Jupyter Notebooks ─────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── GIS Data (large files — use Git LFS or keep locally) ──────────────────
+data/*.tif
+data/*.tiff
+data/*.shp
+data/*.dbf
+data/*.shx
+data/*.prj
+data/*.cpg
+data/*.sbn
+data/*.sbx
+data/*.qpj
+data/*.zip
+data/*.img
+data/*.asc
+data/*.nc
+data/*.geotiff
+
+# ── Outputs (generated files — do not track) ──────────────────────────────
+outputs/
+!outputs/.gitkeep
+
+# ── IDE / Editor ──────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.spyderproject
+.ropeproject
+
+# ── OS files ──────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── Logs ──────────────────────────────────────────────────────────────────
+*.log
+*.out
+*.err
+
+# ── Test artifacts ────────────────────────────────────────────────────────
+.tox/
+.nox/
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+
+# ── Docs build ────────────────────────────────────────────────────────────
+docs/_build/
+docs/site/
+
+# ── GDAL/PROJ temp files ──────────────────────────────────────────────────
+*.aux.xml
+*.ovr
+*.tfw
+*.jgw
+*.pgw
+
+# ── Colab session files ───────────────────────────────────────────────────
+drive/
+sample_data/
