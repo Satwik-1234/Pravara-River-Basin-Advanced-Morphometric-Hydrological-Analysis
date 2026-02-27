@@ -1,25 +1,12 @@
 # ========================
 # Ignore outputs completely
 # ========================
-outputs/*
+
 
 # But keep folder structure
 !outputs/.gitkeep
 !outputs/**/.gitkeep
 
-# Ignore GIS data
-data/*
-
-# Raster files
-*.tif
-*.tiff
-
-# Shapefiles
-*.shp
-*.dbf
-*.shx
-*.prj
-*.cpg
 
 # Python
 __pycache__/
