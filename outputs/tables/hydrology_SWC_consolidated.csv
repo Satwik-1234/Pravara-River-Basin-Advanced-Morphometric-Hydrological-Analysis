@@ -1,0 +1,4 @@
+basin_id,CN_mean,Q_10yr_mm,Q_25yr_mm,Q_100yr_mm,Vol_25yr_Mm3,Tc_Avg_min,Tc_hr,Qp_10yr_m3s,Qp_25yr_m3s,Qp_100yr_m3s,A_mean_t_ha_yr,SDR,Sed_Yield_t_yr,Loss_Class_Mode,WHP_25yr_Mm3,Potential_CheckDams_N,SWC_Priority,tp_hr,Qp_1mm_m3s,W50_hr,W75_hr,tb_hr,Q_bankfull_m3s,W_bankfull_m,D_bankfull_m,Shear_Stress_Pa,Stream_Power_spec_Wm2,Channel_Stability
+SB1,76.57,146.94,175.24,217.7,20.5011,88.4,1.473,1278.64,1524.897,1894.32,159.66,0.232,432585.0,Severe (>60),8.2002,1078,High,6.78,31.0564,8.963,5.11,33.902,692.481,84.21,3.83,2578.921,7549.217,Highly Unstable
+SB2,75.82,144.64,172.8,215.08,7.809,58.1,0.968,643.48,768.753,956.868,175.09,0.261,206386.0,Severe (>60),3.1237,1078,High,5.097,15.9589,6.586,3.755,25.486,345.87,59.51,2.9,3124.507,8584.045,Highly Unstable
+SB3,76.19,145.77,174.0,216.37,26.0952,104.5,1.741,1454.465,1736.117,2158.849,169.77,0.225,571624.0,Severe (>60),10.4379,1078,High,7.305,36.9539,9.715,5.538,36.525,784.954,89.65,4.03,2397.341,7098.814,Highly Unstable
