@@ -497,7 +497,7 @@ pravara-basin-morphometry/
 
 Horton (1945) · Strahler (1952, 1964) · Schumm (1956) · Miller (1953) · Moore et al. (1991) · USDA-SCS (1985) · Wischmeier & Smith (1978) · Snyder (1938) · Kirpich (1940) · Leopold & Maddock (1953) · Bagnold (1966) · El Hamdouni et al. (2008) · Renfro (1975)
 
-→ [Full bibliography in docs/RESULTS.md](docs/RESULTS.md#references)
+→ [Full bibliography in docs/RESULTS.md](docs/README.md)
 
 ---
 
