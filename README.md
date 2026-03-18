@@ -314,37 +314,49 @@ Significant opportunity for water harvesting and treatment.
 
 ## 🏗️ Pipeline Architecture
 
-```
-                        ╔══════════════════════════════════════════╗
-                        ║      PRAVARA BASIN ANALYSIS PIPELINE      ║
-                        ╠══════════════════════════════════════════╣
-                        ║                                          ║
-  ┌──────────────┐      ║  SEC 00  Zip Extraction & Discovery      ║
-  │  INPUT DATA  │ ──▶  ║  SEC 01  Environment & Library Setup     ║
-  │              │      ╠══════════════════════════════════════════╣
-  │ Filled DEM   │      ║  ┌─ CORE MORPHOMETRY ─────────────────┐ ║
-  │ Flow Dir     │      ║  │ 02  Data Loading & DEM Processing   │ ║
-  │ Flow Acc     │      ║  │ 03  60+ Morphometric Parameters     │ ║
-  │ StreamOrder  │      ║  │ 04  15 Publication Maps @ 300 DPI   │ ║
-  │ Pourpoints   │      ║  │ 05  PCA · Correlation · Clustering  │ ║
-  │ Basin Poly   │      ║  │ 06  3-Method Prioritization         │ ║
-  └──────────────┘      ║  │ 07  12 Interactive Plotly Charts    │ ║
-                        ║  │ 08  CSV · Excel · Shapefile Export  │ ║
-                        ║  └─ 09  Automated Report Generation    │ ║
-  ┌──────────────┐      ╠══════════════════════════════════════════╣
-  │  OUTPUT      │      ║  ┌─ GEOMORPHIC & TECTONIC ────────────┐ ║
-  │              │      ║  │ 10  Tectonic Activity Indices (IAT) │ ║
-  │ 26 PNG Maps  │      ║  │ 11  SL · SPI · STI · TWI Rasters   │ ║
-  │ 27 HTML      │      ║  │ 12  Geomorphic Anomaly · Sinuosity  │ ║
-  │ 18 CSV tables│ ◀──  ║  └─ 13  Flood Hazard Composite Score  │ ║
-  │ 15 GeoTIFFs  │      ╠══════════════════════════════════════════╣
-  │ 5 Shapefiles │      ║  ┌─ HYDROLOGY & SWC ─────────────────┐ ║
-  │ 67.5 MB .zip │      ║  │ 14  SCS-CN · Gumbel · Tc · Qp     │ ║
-  └──────────────┘      ║  │ 15  RUSLE  A = R·K·LS·C·P         │ ║
-                        ║  │ 16  CDSI · Percolation · WHP       │ ║
-                        ║  │ 17  Snyder UH · SCS Dimensionless  │ ║
-                        ║  └─ 18  Bankfull · τ₀ · ω · Stability │ ║
-                        ╚══════════════════════════════════════════╝
+```mermaid
+graph TD
+    %% Styling
+    classDef input fill:#1e293b,stroke:#e2e8f0,stroke-width:2px,color:#fff
+    classDef core fill:#2563eb,stroke:#60a5fa,stroke-width:2px,color:#fff
+    classDef geomorph fill:#ea580c,stroke:#fdba74,stroke-width:2px,color:#fff
+    classDef hydro fill:#16a34a,stroke:#86efac,stroke-width:2px,color:#fff
+    classDef output fill:#475569,stroke:#cbd5e1,stroke-width:2px,color:#fff
+
+    subgraph "Raw Spatial Inputs"
+        A1[Filled DEM]:::input
+        A2[Flow Direction]:::input
+        A3[Flow Accumulation]:::input
+        A4[Stream Order Vectors]:::input
+        A5[Basin Polygons]:::input
+    end
+
+    A1 -->|GeoPandas & Rasterio| B1
+    A2 -->|GeoPandas & Rasterio| B1
+    A3 -->|GeoPandas & Rasterio| B1
+    A4 -->|GeoPandas & Rasterio| B1
+    A5 -->|GeoPandas & Rasterio| B1
+
+    subgraph "Automated Orchestrator (make pipeline)"
+        B1("Core Morphometry<br>(Sec 00-09)"):::core
+        B2("Geomorphic & Tectonic<br>(Sec 10-13)"):::geomorph
+        B3("Hydrology & SWC<br>(Sec 14-18)"):::hydro
+        
+        B1 -->|Base Parameters & Geometries| B2
+        B2 -->|Tectonic Indices & Anomaly Grids| B3
+    end
+
+    B1 --> C1
+    B2 --> C1
+    B3 --> C1
+
+    subgraph "Generated Artifacts"
+        C1[26 High-Res PNG Maps]:::output
+        C2[27 Interactive HTML Dashboards]:::output
+        C3[18 CSV Computed Result Tables]:::output
+        C4[15 Derived GeoTIFF Rasters]:::output
+        C1 --- C2 --- C3 --- C4
+    end
 ```
 
 ---
