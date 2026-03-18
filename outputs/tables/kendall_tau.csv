@@ -1,0 +1,4 @@
+Comparison,Kendall_tau,p_value,Agreement
+M1 vs M2,1.0,0.3333333333333333,Strong
+M1 vs M3,1.0,0.3333333333333333,Strong
+M2 vs M3,1.0,0.3333333333333333,Strong
