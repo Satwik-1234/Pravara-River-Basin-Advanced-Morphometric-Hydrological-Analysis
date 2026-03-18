@@ -25,7 +25,7 @@ jobs:
     - name: Install system dependencies (GDAL and spatial libs)
       run: |
         sudo apt-get update
-        sudo apt-get install -y gdal-bin libgdal-dev python3-gdal graphviz
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq gdal-bin libgdal-dev python3-gdal graphviz
         
     - name: Install Python dependencies
       run: |
