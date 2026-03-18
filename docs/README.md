@@ -86,6 +86,7 @@
 | Length Overland Flow | Lg | 0.153 | 0.165 | 0.168 | 0.162 | km |
 | Channel Maintenance | C | 0.307 | 0.329 | 0.336 | 0.324 | km²/km |
 | Lemniscate Ratio | k | 0.702 | 0.702 | 0.702 | 0.702 | — |
+| Basin Shape Index | Bs | 0.887 | 0.886 | 0.885 | 0.886 | — |
 | Infiltration Number | If | 40.5 | 35.5 | 32.1 | 36.0 | — |
 | Max Elevation | Hmax | 1 537 | 1 537 | 1 537 | 1 537 | m |
 | Min Elevation | Hmin | 584 | 584 | 584 | 584 | m |

@@ -45,6 +45,7 @@ All parameters computed across Sections 3, 10, 11, 12, 13, 14, 15, 16, 17, and 1
 | Infiltration Number | If | Dd × Fs | — | Faniran 1968 |
 | Drainage Texture | T | Nu / P | streams/km | Smith 1950 |
 | Lemniscate Ratio | k | Lb² / (4A/π) | — | Chorley et al. 1957 |
+| Basin Shape Index | Bs | Lb² / A | — | Standard morphometry |
 | RHO Coefficient | RHO | RL / Rb | — | Horton 1945 |
 | Channel Maintenance | C | 1 / Dd | km²/km | Schumm 1956 |
 | Overland Flow Length | Lg | 1 / (2 × Dd) | km | Horton 1945 |

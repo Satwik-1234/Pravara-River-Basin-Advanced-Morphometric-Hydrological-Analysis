@@ -34,6 +34,7 @@
 [![Charts](https://img.shields.io/badge/Interactive%20Charts-27-f59e0b?style=flat-square)](outputs/html/)
 [![License](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Production%20Ready-22c55e?style=flat-square)](#)
+[![CI/CD Pipeline](https://img.shields.io/github/actions/workflow/status/Satwik-1234/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis/ci.yml?style=flat-square&branch=main)](https://github.com/Satwik-1234/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis/actions)
 
 <br>
 
@@ -60,7 +61,7 @@ The pipeline covers **18 sequential sections** across three thematic modules:
 
 | Module | Sections | What It Does |
 |--------|----------|-------------|
-| 🔵 **Core Morphometry** | 0 – 9 | 60+ basin shape, drainage and relief parameters, publication maps, statistical analysis, watershed prioritization |
+| 🔵 **Core Morphometry** | 0 – 9 | 62+ basin shape (including Lemniscate & Basin Shape indices), drainage, relief params, maps, PCA |
 | 🟠 **Geomorphic & Tectonic** | 10 – 13 | Tectonic activity indices, SL gradient, TWI/SPI rasters, flood hazard composite |
 | 🟢 **Hydrology & SWC** | 14 – 18 | SCS-CN runoff, RUSLE erosion, conservation planning, unit hydrographs, channel hydraulics |
 
@@ -368,14 +369,20 @@ Significant opportunity for water harvesting and treatment.
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/<your-username>/pravara-basin-morphometry/blob/main/notebooks/Adv_v2__Final_morphometry_pravrabasin.ipynb)
 
-### Local Python
+### Local Python (Automated Pipeline)
 
 ```bash
-git clone https://github.com/<your-username>/pravara-basin-morphometry.git
-cd pravara-basin-morphometry
-pip install -r requirements.txt
-# Place your GIS data in data/ directory
-python scripts/adv_v2_morphometry_pravra3basin.py
+git clone https://github.com/Satwik-1234/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis.git
+cd Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis
+
+# 1. Install dependencies automatically
+make install
+
+# 2. Or, for CI/CD developers
+make install-dev
+
+# 3. Quickly run the complete 18-step pipeline
+make pipeline
 ```
 
 ### Input Files Required
