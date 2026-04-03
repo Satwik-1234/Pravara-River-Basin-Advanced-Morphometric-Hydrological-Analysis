@@ -35,7 +35,7 @@
 [![Pipeline Sections](https://img.shields.io/badge/Pipeline_Sections-18-8b5cf6?style=flat-square)](docs/)
 [![Parameters](https://img.shields.io/badge/Parameters_Computed-62%2B-0ea5e9?style=flat-square)](docs/PARAMETERS_REFERENCE.md)
 [![Maps](https://img.shields.io/badge/Maps_Generated-26-22c55e?style=flat-square)](outputs/maps/)
-[![Charts](https://img.shields.io/badge/Interactive_Charts-27-f59e0b?style=flat-square)](outputs/html/)
+[![Charts](https://img.shields.io/badge/Interactive_Charts-36-f59e0b?style=flat-square)](outputs/html/)
 [![CSV Tables](https://img.shields.io/badge/CSV_Tables-18-06b6d4?style=flat-square)](outputs/tables/)
 [![GeoTIFF Rasters](https://img.shields.io/badge/Derived_Rasters-20-e11d48?style=flat-square)](outputs/)
 [![Lines of Code](https://img.shields.io/badge/Lines_of_Code-7%2C000%2B-64748b?style=flat-square)](scripts/)
@@ -353,22 +353,28 @@ Flash Flood Potential Index · *Section 13*
 
 ## 📊 Interactive Charts
 
-> **27 Plotly HTML charts** — open locally in any browser · Full index → [`outputs/html/README.md`](outputs/html/README.md)
+> **36 Plotly HTML charts** — open locally in any browser · Full index → [`outputs/html/README.md`](outputs/html/README.md)
 
 | Chart | Type | Key Finding |
 |-------|:----:|-------------|
+| [`07_hypsometric_curves.html`](outputs/html/07_hypsometric_curves.html) | 📈 Line | **FIXED** — Per-basin HI: SB1=0.249, SB2=0.267, SB3=0.222 |
+| [`elevation_profile_W2E.html`](outputs/html/elevation_profile_W2E.html) | 📈 Line | **NEW** — West→East transect at basin centroid |
+| [`elevation_profile_E2W.html`](outputs/html/elevation_profile_E2W.html) | 📈 Line | **NEW** — East→West transect at basin centroid |
+| [`elevation_profile_N2S.html`](outputs/html/elevation_profile_N2S.html) | 📈 Line | **NEW** — North→South transect at basin centroid |
+| [`elevation_profile_S2N.html`](outputs/html/elevation_profile_S2N.html) | 📈 Line | **NEW** — South→North transect at basin centroid |
+| [`elevation_profiles_4dir.html`](outputs/html/elevation_profiles_4dir.html) | 📊 Subplot | **NEW** — Combined 4-directional view per basin |
+| [`elevation_histograms.html`](outputs/html/elevation_histograms.html) | 📊 Histogram | **NEW** — Pixel-level elevation distributions |
+| [`elevation_histograms_per_basin.html`](outputs/html/elevation_histograms_per_basin.html) | 📊 Histogram | **NEW** — Per-basin distributions with stats |
+| [`elevation_statistics_table.html`](outputs/html/elevation_statistics_table.html) | 📋 Table | **NEW** — Min/Max/Mean/Std/HI summary |
 | [`14c_flood_frequency_curves.html`](outputs/html/14c_flood_frequency_curves.html) | 📈 Line | Qp₂₅ reaches **1,736 m³/s** (SB3) |
 | [`17b_synthetic_unit_hydrographs.html`](outputs/html/17b_synthetic_unit_hydrographs.html) | 📈 Line | W₅₀ = 6.6–9.7 hr · tp = 5.1–7.3 hr |
 | [`18c_stream_power_hydraulics.html`](outputs/html/18c_stream_power_hydraulics.html) | 🫧 Bubble | ω by order: 11.8 → **189 W/m²** |
 | [`15c_RUSLE_erosion_bars.html`](outputs/html/15c_RUSLE_erosion_bars.html) | 📊 Bar | Total: **1.21 million t/yr** |
 | [`02_radar_morphometric.html`](outputs/html/02_radar_morphometric.html) | 🕸️ Radar | SB1 clearly most degraded |
-| [`09_parallel_coordinates.html`](outputs/html/09_parallel_coordinates.html) | 🔀 Parallel | All 21 parameters across basins |
-| [`07_hypsometric_curves.html`](outputs/html/07_hypsometric_curves.html) | 📈 Line | Erosion cycle stage per basin |
 | [`08_correlation_heatmap.html`](outputs/html/08_correlation_heatmap.html) | 🗺️ Heatmap | Full parameter correlation matrix |
 | [`11_priority_map.html`](outputs/html/11_priority_map.html) | 🗺️ Choropleth | Interactive priority classification |
-| [`13f_flood_indices_bar.html`](outputs/html/13f_flood_indices_bar.html) | 📊 Bar | TWI, SPI, STI comparison |
 
-*➡️ [View all 27 charts →](outputs/html/README.md)*
+*➡️ [View all 36 charts →](outputs/html/README.md)*
 
 ---
 
