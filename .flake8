@@ -1,0 +1,15 @@
+[flake8]
+max-line-length = 127
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    *.ipynb_checkpoints
+
+# F821: "undefined name" — these two pipeline scripts use runtime-injected
+# globals (e.g. OUT_DIR, MAPS_DIR, gdf_sub, df_IAT, DEM_ARR, etc.) that are
+# populated by earlier pipeline stages executed in the same session.
+# Suppressing F821 only on these files avoids 183 false positives.
+per-file-ignores =
+    scripts/adv_v2_morphometry_pravra3basin.py: F821
+    scripts/sections_14_18_hydrology_swc.py: F821

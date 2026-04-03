@@ -4,28 +4,26 @@ run_pipeline.py
 Master orchestrator script that runs all 18 sections of the Pravara River Basin
 morphometric and hydrological analysis sequentially.
 """
+
+import os
 import subprocess
 import sys
-import os
+
 
 def run_script(script_name):
     print(f"\n{'='*60}")
     print(f"🚀 Running: {script_name}")
     print(f"{'='*60}")
-    
+
     script_path = os.path.join("scripts", script_name)
-    
+
     if not os.path.exists(script_path):
         print(f"❌ Error: Script '{script_path}' not found.")
         return False
-        
+
     try:
         # Run the script and stream output
-        result = subprocess.run(
-            [sys.executable, script_path],
-            check=True,
-            text=True
-        )
+        result = subprocess.run([sys.executable, script_path], check=True, text=True)
         print(f"✅ Successfully completed: {script_name}")
         return True
     except subprocess.CalledProcessError as e:
@@ -33,11 +31,12 @@ def run_script(script_name):
         print(f"Exit code: {e.returncode}")
         return False
 
+
 def main():
     print("==================================================")
     print("  PRAVARA RIVER BASIN ANALYSIS PIPELINE STARTER   ")
     print("==================================================")
-    
+
     # List of scripts in execution order based on project architecture
     # Note: excluding section_00 for zip extraction assuming data is unzipped
     # excluding section_01 environment as that's already setup locally.
@@ -58,24 +57,25 @@ def main():
         "section_15_rusle.py",
         "section_16_swc.py",
         "section_17_hydrograph.py",
-        "section_18_hydraulics.py"
+        "section_18_hydraulics.py",
     ]
-    
+
     # Ensure starting from the repository root
     if not os.path.exists("scripts"):
         print("Please run this script from the repository root directory.")
         print("Example: python scripts/run_pipeline.py")
         sys.exit(1)
-        
+
     for script in scripts:
         success = run_script(script)
         if not success:
             print("\nPipeline execution halted due to errors.")
             sys.exit(1)
-            
+
     print("\n==================================================")
     print("🎉 FULL PIPELINE COMPLETED SUCCESSFULLY 🎉")
     print("==================================================")
+
 
 if __name__ == "__main__":
     main()

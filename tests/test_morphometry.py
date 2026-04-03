@@ -2,6 +2,7 @@
 Unit tests for core morphometric and hydrological functions.
 Run with: pytest tests/ -v
 """
+
 import numpy as np
 import pytest
 
@@ -9,13 +10,13 @@ import pytest
 def scscn_runoff(P_mm, CN):
     S = 25400.0 / CN - 254.0
     I_a = 0.2 * S
-    Q = np.where(P_mm > I_a, (P_mm - I_a)**2 / (P_mm + 0.8*S), 0.0)
+    Q = np.where(P_mm > I_a, (P_mm - I_a) ** 2 / (P_mm + 0.8 * S), 0.0)
     return float(np.maximum(Q, 0.0))
 
 
 def tc_kirpich(L_m, H_m):
     S = max(H_m / L_m, 0.0001) if L_m > 0 else 0.001
-    return 0.0195 * (L_m ** 0.77) * (S ** -0.385)
+    return 0.0195 * (L_m**0.77) * (S**-0.385)
 
 
 class TestSCSCN:

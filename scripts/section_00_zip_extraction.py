@@ -5,7 +5,7 @@
  Pravara River Basin Morphometric Analysis
 =============================================================================
  Purpose  : Upload zip to Colab; extract; auto-detect all GIS layers.
- Source   : adv_v2_morphometry_pravra3basin.py :: SECTION 
+ Source   : adv_v2_morphometry_pravra3basin.py :: SECTION
  Depends  : None must be run first (variables must be in memory).
  Usage    :   %run scripts/section_00_zip_extraction.py
            OR exec(open("scripts/section_00_zip_extraction.py").read())
@@ -31,7 +31,7 @@
 #   Run sections in order 00 → 18. Each section adds variables to the session.
 #
 # ─────────────────────────────────────────────────────────────────────────────
-# SECTION 00 CODE — copied from adv_v2_morphometry_pravra3basin.py :: SECTION 
+# SECTION 00 CODE — copied from adv_v2_morphometry_pravra3basin.py :: SECTION
 # ─────────────────────────────────────────────────────────────────────────────
 #
 # [PASTE THE SECTION 00 CODE BLOCK HERE]
