@@ -193,14 +193,18 @@ def generate_hypsometric_html(hyps_data):
         )
     fig.add_trace(
         go.Scatter(
-            x=[0, 1], y=[0.5, 0.5], mode="lines",
+            x=[0, 1],
+            y=[0.5, 0.5],
+            mode="lines",
             name="HI = 0.5 (Equilibrium)",
             line=dict(dash="dash", color="grey", width=1),
         )
     )
     fig.add_trace(
         go.Scatter(
-            x=[0, 1], y=[1, 0], mode="lines",
+            x=[0, 1],
+            y=[1, 0],
+            mode="lines",
             name="Diagonal (reference)",
             line=dict(dash="dot", color="lightgrey", width=1),
         )
@@ -264,22 +268,28 @@ def compute_all_profiles(dem_arr, dem_meta, gdf):
 
         # W->E transect: horizontal at centroid_y
         d_we, e_we = sample_transect(
-            dem_arr, dem_meta["transform"], geom,
-            (bounds[0], cy), (bounds[2], cy)
+            dem_arr, dem_meta["transform"], geom, (bounds[0], cy), (bounds[2], cy)
         )
         # N->S transect: vertical at centroid_x
         d_ns, e_ns = sample_transect(
-            dem_arr, dem_meta["transform"], geom,
-            (cx, bounds[3]), (cx, bounds[1])  # north (maxy) to south (miny)
+            dem_arr,
+            dem_meta["transform"],
+            geom,
+            (cx, bounds[3]),
+            (cx, bounds[1]),  # north (maxy) to south (miny)
         )
 
         if len(e_we) < 10 or len(e_ns) < 10:
-            print(f"  [WARN] {bid}: insufficient profile points (W-E:{len(e_we)}, N-S:{len(e_ns)})")
+            print(
+                f"  [WARN] {bid}: insufficient profile points (W-E:{len(e_we)}, N-S:{len(e_ns)})"
+            )
             continue
 
         profiles[bid] = {
-            "d_we": d_we, "e_we": e_we,
-            "d_ns": d_ns, "e_ns": e_ns,
+            "d_we": d_we,
+            "e_we": e_we,
+            "d_ns": d_ns,
+            "e_ns": e_ns,
             "bounds": bounds,
             "centroid": (cx, cy),
         }
@@ -306,7 +316,11 @@ def generate_all_profile_html(profiles):
             x, y = get_xy(data)
             fig.add_trace(
                 go.Scatter(
-                    x=x, y=y, mode="lines", name=bid, fill="tozeroy",
+                    x=x,
+                    y=y,
+                    mode="lines",
+                    name=bid,
+                    fill="tozeroy",
                     line=dict(color=colors[i % len(colors)], width=2),
                     hovertemplate=(
                         f"<b>{bid}</b><br>"
@@ -363,7 +377,8 @@ def generate_all_profile_html(profiles):
     # ── Combined 4-directional view per basin ───────────────────────────────
     n_basins = len(sorted_bids)
     fig_combo = make_subplots(
-        rows=n_basins, cols=4,
+        rows=n_basins,
+        cols=4,
         subplot_titles=[
             f"{bid} - {d}"
             for bid in sorted_bids
@@ -384,11 +399,15 @@ def generate_all_profile_html(profiles):
         for col_i, (x, y) in enumerate(traces):
             fig_combo.add_trace(
                 go.Scatter(
-                    x=x, y=y, mode="lines", fill="tozeroy",
+                    x=x,
+                    y=y,
+                    mode="lines",
+                    fill="tozeroy",
                     line=dict(color=color, width=1.5),
                     showlegend=False,
                 ),
-                row=i + 1, col=col_i + 1,
+                row=i + 1,
+                col=col_i + 1,
             )
             fig_combo.update_xaxes(title_text="km", row=i + 1, col=col_i + 1)
         fig_combo.update_yaxes(title_text="m", row=i + 1, col=1)
@@ -421,7 +440,10 @@ def generate_elevation_histograms(hyps_data):
         vals = hyps_data[bid]["vals"]
         fig.add_trace(
             go.Histogram(
-                x=vals, nbinsx=80, name=bid, opacity=0.6,
+                x=vals,
+                nbinsx=80,
+                name=bid,
+                opacity=0.6,
                 marker_color=colors[i % len(colors)],
                 hovertemplate=f"<b>{bid}</b><br>Elevation: %{{x:.0f}} m<br>Count: %{{y}}<extra></extra>",
             )
@@ -441,7 +463,8 @@ def generate_elevation_histograms(hyps_data):
 
     # Per-basin subplot histograms with stats annotations
     fig_sub = make_subplots(
-        rows=1, cols=n,
+        rows=1,
+        cols=n,
         subplot_titles=[f"{bid}" for bid in sorted_bids],
     )
     for i, bid in enumerate(sorted_bids):
@@ -449,11 +472,13 @@ def generate_elevation_histograms(hyps_data):
         vals = d["vals"]
         fig_sub.add_trace(
             go.Histogram(
-                x=vals, nbinsx=60,
+                x=vals,
+                nbinsx=60,
                 marker_color=colors[i % len(colors)],
                 showlegend=False,
             ),
-            row=1, col=i + 1,
+            row=1,
+            col=i + 1,
         )
         # Add stats as a text trace instead of annotation (more reliable with subplots)
         stats_text = (
@@ -482,30 +507,40 @@ def generate_elev_stats_table(hyps_data):
 
     sorted_bids = sorted(hyps_data.keys())
     headers = [
-        "Basin", "Elev Min (m)", "Elev Max (m)", "Relief (m)",
-        "Mean (m)", "Median (m)", "Std Dev (m)", "HI", "Stage", "Pixels"
+        "Basin",
+        "Elev Min (m)",
+        "Elev Max (m)",
+        "Relief (m)",
+        "Mean (m)",
+        "Median (m)",
+        "Std Dev (m)",
+        "HI",
+        "Stage",
+        "Pixels",
     ]
     rows = []
     for bid in sorted_bids:
         d = hyps_data[bid]
         relief = d["elev_max"] - d["elev_min"]
         stage = (
-            "Young" if d["HI"] > 0.6
-            else "Mature" if d["HI"] > 0.35
-            else "Old (Peneplain)"
+            "Young"
+            if d["HI"] > 0.6
+            else "Mature" if d["HI"] > 0.35 else "Old (Peneplain)"
         )
-        rows.append([
-            bid,
-            f"{d['elev_min']:.0f}",
-            f"{d['elev_max']:.0f}",
-            f"{relief:.0f}",
-            f"{d['elev_mean']:.1f}",
-            f"{d['elev_median']:.0f}",
-            f"{d['elev_std']:.1f}",
-            f"{d['HI']:.4f}",
-            stage,
-            f"{d['n_pixels']:,}",
-        ])
+        rows.append(
+            [
+                bid,
+                f"{d['elev_min']:.0f}",
+                f"{d['elev_max']:.0f}",
+                f"{relief:.0f}",
+                f"{d['elev_mean']:.1f}",
+                f"{d['elev_median']:.0f}",
+                f"{d['elev_std']:.1f}",
+                f"{d['HI']:.4f}",
+                stage,
+                f"{d['n_pixels']:,}",
+            ]
+        )
 
     fig = go.Figure(
         data=[
