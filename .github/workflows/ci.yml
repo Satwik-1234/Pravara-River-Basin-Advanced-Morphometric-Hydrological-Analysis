@@ -2,44 +2,31 @@ name: 🌊 Pravara Basin CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  # ─────────────────────────────────────────────────────────────────
-  # Job 1 — Fast lint & format checks (no heavy deps)
-  # ─────────────────────────────────────────────────────────────────
   lint:
     name: 🔍 Lint & Format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
-
       - name: Install dev tools
         run: pip install black isort flake8
-
       - name: Black format check
         run: black --check --diff .
-
-      - name: isort import order check
+      - name: isort check
         run: isort --check-only --diff .
-
       - name: flake8 syntax errors
         run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      - name: flake8 style (advisory)
+        run: flake8 . --count --exit-zero --max-line-length=127 --statistics
 
-      - name: flake8 style warnings
-        run: flake8 . --count --exit-zero --max-complexity=15 --max-line-length=127 --statistics
-
-  # ─────────────────────────────────────────────────────────────────
-  # Job 2 — Unit tests (numpy-only, no GDAL needed)
-  # ─────────────────────────────────────────────────────────────────
   test:
     name: 🧪 Tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -48,133 +35,85 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.10", "3.11"]
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-
-      - name: Install test dependencies
-        run: |
-          pip install --upgrade pip
-          pip install numpy pytest pytest-cov
-
-      - name: Run tests with coverage
-        run: |
-          pytest tests/ -v \
-            --cov=. \
-            --cov-report=term-missing \
-            --cov-report=xml \
-            --tb=short
-
-      - name: Upload coverage report
+      - name: Install test deps
+        run: pip install --upgrade pip numpy pytest pytest-cov
+      - name: Run tests
+        run: pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing --tb=short
+      - name: Upload coverage
         if: matrix.python-version == '3.11'
         uses: codecov/codecov-action@v4
         with:
           file: coverage.xml
           fail_ci_if_error: false
 
-  # ─────────────────────────────────────────────────────────────────
-  # Job 3 — Geospatial stack import check (GDAL via apt, not pip)
-  # ─────────────────────────────────────────────────────────────────
   geospatial-check:
-    name: 🗺️ Geospatial Stack Check
+    name: 🗺️ Geospatial Stack
     runs-on: ubuntu-latest
     needs: test
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
-
-      - name: Install system GDAL (reliable, version-matched)
+      - name: Install system GDAL
         run: |
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq \
-            gdal-bin libgdal-dev python3-gdal \
-            libgeos-dev libproj-dev libspatialindex-dev
-
+            gdal-bin libgdal-dev python3-gdal libgeos-dev libproj-dev libspatialindex-dev
       - name: Install Python geospatial packages
         run: |
           pip install --upgrade pip
-          # Pin gdal to exact system version — the ONLY reliable way
           GDAL_VER=$(gdal-config --version)
           pip install "GDAL==${GDAL_VER}" \
-            geopandas>=0.13.0 \
-            rasterio>=1.3.0 \
-            shapely>=2.0.0 \
-            fiona>=1.9.0 \
-            pyproj>=3.4.0 \
+            geopandas rasterio shapely fiona pyproj \
             numpy pandas matplotlib plotly scipy scikit-learn
-
       - name: Verify core imports
         run: |
           python - <<'EOF'
           import sys
-          libs = [
-              "numpy", "pandas", "scipy",
-              "geopandas", "rasterio", "shapely",
-              "matplotlib", "plotly", "sklearn",
-          ]
+          libs = ["numpy","pandas","scipy","geopandas","rasterio","shapely","matplotlib","plotly","sklearn"]
           failed = []
           for lib in libs:
               try:
-                  __import__(lib)
-                  print(f"  ✅  {lib}")
+                  __import__(lib); print(f"  ✅  {lib}")
               except ImportError as e:
-                  print(f"  ❌  {lib}: {e}")
-                  failed.append(lib)
+                  print(f"  ❌  {lib}: {e}"); failed.append(lib)
           if failed:
-              print(f"\nFailed imports: {failed}")
-              sys.exit(1)
-          print("\n✅ All core geospatial libraries importable")
+              print(f"\nFailed: {failed}"); sys.exit(1)
+          print("\n✅ All geospatial libraries importable")
           EOF
-
       - name: Validate pipeline entry point
-        run: python -c "import scripts.run_pipeline" 2>/dev/null || python -m py_compile scripts/run_pipeline.py && echo "✅ run_pipeline.py syntax OK"
+        run: python -m py_compile scripts/run_pipeline.py && echo "✅ run_pipeline.py OK"
 
-  # ─────────────────────────────────────────────────────────────────
-  # Job 4 — Notebook format validation (no kernel execution)
-  # ─────────────────────────────────────────────────────────────────
   notebooks:
     name: 📓 Notebook Validation
     runs-on: ubuntu-latest
     needs: lint
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
-
-      - name: Install nbformat
-        run: pip install nbformat
-
-      - name: Validate notebook JSON structure
+      - run: pip install nbformat
+      - name: Validate notebook JSON
         run: |
           python - <<'EOF'
           import nbformat, pathlib, sys
-          nbs = list(pathlib.Path(".").rglob("*.ipynb"))
-          nbs = [p for p in nbs if ".ipynb_checkpoints" not in str(p)]
+          nbs = [p for p in pathlib.Path(".").rglob("*.ipynb") if ".ipynb_checkpoints" not in str(p)]
           print(f"Found {len(nbs)} notebook(s)")
           errors = []
           for nb in nbs:
               try:
-                  with open(nb) as f:
-                      nbformat.read(f, as_version=4)
-                  print(f"  ✅  {nb}")
+                  nbformat.read(open(nb), as_version=4); print(f"  ✅  {nb}")
               except Exception as e:
-                  print(f"  ❌  {nb}: {e}")
-                  errors.append(nb)
-          if errors:
-              sys.exit(1)
+                  print(f"  ❌  {nb}: {e}"); errors.append(nb)
+          sys.exit(1 if errors else 0)
           EOF
