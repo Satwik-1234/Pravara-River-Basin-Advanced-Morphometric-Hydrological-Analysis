@@ -1,0 +1,90 @@
+# ┌─────────────────────────────────────────────────────────────────────────────┐
+# │  SECTION 2 — DATA PATHS (Updated for 3-Pour-Point Pravra Basin Run)        │
+# │                                                                             │
+# │  Subbasins : Pravrabasin.shp  ← contains 5 polygons as confirmed by DBF   │
+# │              If you have a 3-polygon delineation, replace path with:       │
+# │              r"/content/watershed_data/pravra3.shp"                        │
+# │  Pour Pts  : Pourpoints_3.shp ← 3 points confirmed ✅                     │
+# └─────────────────────────────────────────────────────────────────────────────┘
+
+# ── ▼▼▼  EDIT THESE PATHS  ▼▼▼ ────────────────────────────────────────────────
+DATA_PATHS = {
+    "dem"              : r"/content/watershed_data/Filled DEM.tif",
+    # ── SUBBASINS: Using Pravrabasin.shp (5 polygons found in zip).
+    #    Replace path below with pravra3.shp once you have the 3-polygon version.
+    "subbasins"        : r"/content/watershed_data/Subbasins.shp",
+    # ── STREAMS: SteamOrder.shp is the polyline stream-order layer
+    "streams"          : r"/content/watershed_data/SteamOrder.shp",
+    "stream_order_shp" : r"/content/watershed_data/SteamOrder.shp",
+    "flow_dir"         : r"/content/watershed_data/Flow Direction.tif",
+    "flow_acc"         : r"/content/watershed_data/FlowAccumilation.tif",
+    # ── POUR POINTS: Updated from old Pourpoints-Pravrabasin.shp → Pourpoints_3.shp
+    "pour_points"      : r"/content/watershed_data/Pourpoints_3.shp",
+}
+# ── ▲▲▲  EDIT ABOVE  ▲▲▲ ──────────────────────────────────────────────────────
+
+# N_SUBBASINS is now set dynamically from the actual shapefile (see load step below).
+# Override here ONLY if you want a strict assertion check:
+#   N_SUBBASINS = 3    ← set to 3 when pravra3.shp (3-polygon file) is ready
+#   N_SUBBASINS = 5    ← current Pravrabasin.shp has 5 polygons
+N_SUBBASINS = None   # None = auto-detect from shapefile (recommended)
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  HELPER FUNCTIONS
+# ─────────────────────────────────────────────────────────────────────────────
+
+def detect_utm_epsg(lon, lat):
+    """Return appropriate UTM EPSG code for a given lon/lat."""
+    zone = int((lon + 180) / 6) + 1
+    if lat >= 0:
+        return f"EPSG:326{zone:02d}"
+    else:
+        return f"EPSG:327{zone:02d}"
+
+
+def get_raster_info(path):
+    """Return dict of raster metadata."""
+    with rasterio.open(path) as src:
+        return {
+            "crs"        : src.crs,
+            "res"        : src.res,
+            "nodata"     : src.nodata,
+            "shape"      : (src.height, src.width),
+            "bounds"     : src.bounds,
+            "dtype"      : src.dtypes[0],
+            "count"      : src.count,
+            "transform"  : src.transform,
+        }
+
+
+def reproject_raster(src_path, dst_path, target_crs):
+    """Reproject a raster to target CRS and save."""
+    with rasterio.open(src_path) as src:
+        transform, width, height = calculate_default_transform(
+            src.crs, target_crs, src.width, src.height, *src.bounds
+        )
+        kwargs = src.meta.copy()
+        kwargs.update({
+            'crs'       : target_crs,
+            'transform' : transform,
+            'width'     : width,
+            'height'    : height,
+        })
+        with rasterio.open(dst_path, 'w', **kwargs) as dst:
+            for i in range(1, src.count + 1):
+                reproject(
+                    source=rasterio.band(src, i),
+                    destination=rasterio.band(dst, i),
+                    src_transform=src.transform,
+                    src_crs=src.crs,
+                    dst_transform=transform,
+                    dst_crs=target_crs,
+                    resampling=Resampling.bilinear,
+                )
+    return dst_path
+
+
+def fix_geometries(gdf, layer_name="layer"):
+    """Fix invalid geometries and remove nulls."""
+    before = len(gdf)
+    gdf = gdf[~gdf.geometry.i

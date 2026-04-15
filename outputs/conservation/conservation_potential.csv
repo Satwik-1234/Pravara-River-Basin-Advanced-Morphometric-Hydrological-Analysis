@@ -1,0 +1,4 @@
+basin_id,Perc_Potential_mean,Perc_Potential_p75,ContourTrench_mean,Pct_CT_suitable,WHP_25yr_Mm3,Potential_CheckDams_N,CN_mean,SWC_Priority
+SB1,0.108,0.194,0.582,37.2,8.2002,1037,76.57,High
+SB2,0.087,0.0,0.642,46.2,3.1237,1037,75.82,High
+SB3,0.078,0.0,0.662,53.5,10.4379,1037,76.19,High

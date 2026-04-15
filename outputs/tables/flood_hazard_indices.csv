@@ -1,0 +1,4 @@
+basin_id,TWI_mean,TWI_max,SPI_mean,SPI_max,STI_mean,STI_max,FFPI_mean,FFPI_max,FFPI_high_frac,FFPI_class,rank_TWI_mean,rank_SPI_mean,rank_STI_mean,rank_FFPI_mean,FHI_rank,FHI_priority
+SB1,6.78,18.0,271511.125,24016580.0,124.941,4027.112,0.1386,0.6242,0.0001,Very Low,2.0,2.0,2.0,1.0,1.75,Moderate
+SB2,6.776,18.0,254221.578,14360948.0,114.134,1729.275,0.1373,0.5721,0.0,Very Low,3.0,3.0,3.0,2.0,2.75,Low
+SB3,6.858,18.0,2017981.875,90724760.0,346.232,11109.874,0.1287,0.5789,0.0,Very Low,1.0,1.0,1.0,3.0,1.5,High

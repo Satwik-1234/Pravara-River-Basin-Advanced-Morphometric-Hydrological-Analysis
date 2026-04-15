@@ -1,0 +1,4 @@
+basin_id,A_mean_t_ha_yr,A_p95_t_ha_yr,Area_ha,Gross_Erosion_t_yr,SDR,Sed_Yield_t_yr,Sed_Yield_Mm3_yr,Loss_Class_Mode,Pct_Slight (<5),Pct_Moderate (5-15),Pct_High (15-30),Pct_Very High (30-60),Pct_Severe (>60)
+SB1,125.19,456.52,11698.6,1464508.0,0.232,339175.0,0.260904,Severe (>60),8.4,6.2,11.5,12.5,61.4
+SB2,136.85,480.11,4519.2,618445.0,0.261,161312.0,0.124086,Severe (>60),1.1,4.9,11.8,15.8,66.4
+SB3,130.13,434.62,14996.9,1951612.0,0.225,438170.0,0.337054,Severe (>60),0.6,4.0,12.2,17.0,66.1

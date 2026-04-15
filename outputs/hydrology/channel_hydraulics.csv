@@ -1,0 +1,4 @@
+basin_id,Q_bankfull_m3s,W_bankfull_m,D_bankfull_m,V_bankfull_ms,WD_ratio,R_hydraulic_m,Channel_Slope_S,Manning_n,Q_Manning_m3s,Shear_Stress_Pa,Critical_Shear_Pa,Excess_Shear_Pa,Stream_Power_total_Wm,Stream_Power_spec_Wm2,Excess_Sp_Power_Wm2,Transport_Capacity_rel,Channel_Stability
+SB1,486.687,70.6,3.33,2.079,21.22,2.432,0.048887,0.038,1977.375,1166.519,11.411,1155.108,233406.61,3306.269,3271.269,8735.674,Highly Unstable
+SB2,267.647,52.35,2.62,1.959,19.99,1.905,0.082072,0.038,1270.834,1533.625,11.411,1522.214,215490.15,4116.194,4081.194,13596.856,Highly Unstable
+SB3,627.297,80.15,3.68,2.133,21.76,2.698,0.051758,0.038,2739.675,1369.941,11.411,1358.529,318506.47,3974.036,3939.036,12666.129,Highly Unstable

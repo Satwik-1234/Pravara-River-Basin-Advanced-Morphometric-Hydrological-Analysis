@@ -1,0 +1,128 @@
+name: 🌊 Pravara Basin CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: 🔍 Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dev tools
+        run: pip install black isort flake8
+      - name: Black format check
+        run: black --check --diff .
+      - name: isort check
+        run: isort --check-only --diff .
+      - name: flake8 syntax errors
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      - name: flake8 style (advisory)
+        run: flake8 . --count --exit-zero --max-line-length=127 --statistics
+
+  test:
+    name: 🧪 Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install test deps
+        run: pip install --upgrade pip numpy pytest pytest-cov
+      - name: Run tests
+        run: pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing --tb=short
+      - name: Upload coverage
+        if: matrix.python-version == '3.11'
+        uses: codecov/codecov-action@v4
+        with:
+          file: coverage.xml
+          fail_ci_if_error: false
+
+  geospatial-check:
+    name: 🗺️ Geospatial Stack
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install system GDAL
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq \
+            gdal-bin libgdal-dev python3-gdal libgeos-dev libproj-dev libspatialindex-dev
+      - name: Install Python geospatial packages
+        run: |
+          pip install --upgrade pip
+          GDAL_VER=$(gdal-config --version)
+          pip install "GDAL==${GDAL_VER}" \
+            geopandas rasterio shapely fiona pyproj \
+            numpy pandas matplotlib plotly scipy scikit-learn
+      - name: Verify core imports
+        run: |
+          python - <<'EOF'
+          import sys
+          libs = ["numpy","pandas","scipy","geopandas","rasterio","shapely","matplotlib","plotly","sklearn"]
+          failed = []
+          for lib in libs:
+              try:
+                  __import__(lib); print(f"  ✅  {lib}")
+              except ImportError as e:
+                  print(f"  ❌  {lib}: {e}"); failed.append(lib)
+          if failed:
+              print(f"\nFailed: {failed}"); sys.exit(1)
+          print("\n✅ All geospatial libraries importable")
+          EOF
+      - name: Validate pipeline entry points
+        run: |
+          python -m py_compile scripts/pravra_pipeline_patched.py
+          python -m py_compile scripts/ultimate_publication_renderer.py
+          echo "✅ Master scripts compilation OK"
+      - name: Validate modular sections
+        run: |
+          for f in scripts/section_*.py; do
+            python -m py_compile "$f" || exit 1
+          done
+          echo "✅ All 18 modular sections compilation OK"
+
+  notebooks:
+    name: 📓 Notebook Validation
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install nbformat
+      - name: Validate notebook JSON
+        run: |
+          python - <<'EOF'
+          import nbformat, pathlib, sys
+          nbs = [p for p in pathlib.Path(".").rglob("*.ipynb") if ".ipynb_checkpoints" not in str(p)]
+          print(f"Found {len(nbs)} notebook(s)")
+          errors = []
+          for nb in nbs:
+              try:
+                  nbformat.read(open(nb), as_version=4); print(f"  ✅  {nb}")
+              except Exception as e:
+                  print(f"  ❌  {nb}: {e}"); errors.append(nb)
+          sys.exit(1 if errors else 0)
+          EOF

@@ -1,0 +1,46 @@
+================================================================================
+ADVANCED MORPHOMETRIC ANALYSIS Ã¢â‚¬â€ SUPPLEMENTARY INTERPRETATIONS
+================================================================================
+
+10. TECTONIC ACTIVITY ANALYSIS
+----------------------------------------
+The Index of Active Tectonics (IAT) integrates four geomorphic proxies: Asymmetry Factor (AF), Transverse Symmetry (T), Valley Floor Width-to-Height Ratio (Vf), and Mountain Front Sinuosity (Smf), following El Hamdouni et al. (2008). AF values deviating substantially from 50 indicate basin tilting driven by differential uplift or lithological asymmetry. Vf < 0.5 is diagnostic of active incision associated with tectonic uplift, producing V-shaped valleys, whereas Vf > 1.0 reflects reduced tectonic activity and lateral widening. Low Smf (< 1.4) indicates a tectonically active, straight mountain front.
+
+  SB1: IAT=2.25 (Class 2 Ã¢â‚¬â€ High). AF=0.05, T=3.2653, Vf=13.852, Smf=3.915.
+  SB2: IAT=2.00 (Class 2 Ã¢â‚¬â€ High). AF=0.08, T=3.0530, Vf=13.925, Smf=4.557.
+  SB3: IAT=2.25 (Class 2 Ã¢â‚¬â€ High). AF=0.05, T=2.9820, Vf=12.130, Smf=4.786.
+
+11. CHANNEL STEEPNESS & CONCAVITY
+----------------------------------------
+Channel steepness indices (ksn) and concavity (ÃŽÂ¸) were derived from the slope-area relationship following Hack (1973) and Flint (1974). High ksn values indicate either strong lithological resistance, active rock uplift, or transient adjustment to base-level change. The chi (Ãâ€¡) coordinate plot (Perron & Royden, 2012) allows comparison of drainage networks independent of their spatial position, where non-collinear Ãâ€¡-elevation relationships between adjacent basins signal ongoing divide migration or stream capture. SL anomaly hotspots correspond to knickpoints or reaches crossing resistant lithological boundaries.
+
+  (Steepness and concavity parameters were not computed in this run.)
+
+12. GEOMORPHIC ANOMALY & LINEAMENT ANALYSIS
+----------------------------------------
+The Geomorphic Anomaly Index (GAI) integrates SL anomaly, TRI, and inverse TWI to identify geomorphically active zones where structural or lithological controls modulate landscape evolution. High GAI zones (top 20th percentile) are spatially coincident with anomalously high SL reaches, implying knickpoint clusters, fault zones, or resistant bedrock outcrops. Structural lineaments were identified as a proxy using Sobel edge detection combined with Probabilistic Hough Line Transform, targeting linear high-gradient alignments in the DEM and slope rasters.
+
+  SB1: GAI_mean=0.451 | High anomaly fraction=8.8% | Mean SI=1.053 (Sinuous/meandering)
+  SB2: GAI_mean=0.445 | High anomaly fraction=9.0% | Mean SI=1.053 (Sinuous/meandering)
+  SB3: GAI_mean=0.430 | High anomaly fraction=6.3% | Mean SI=1.055 (Sinuous/meandering)
+
+13. FLOOD HAZARD ANALYSIS
+----------------------------------------
+Topographic Wetness Index (TWI), Stream Power Index (SPI), Sediment Transport Index (STI), and Flash Flood Potential Index (FFPI) were computed to characterise the hydrological response and hazard potential of each subbasin. TWI identifies zones of moisture accumulation and potential saturation-excess overland flow. High SPI zones correspond to areas of concentrated flow energy capable of significant geomorphic work. STI quantifies sediment detachment and transport potential. FFPI synthesises these signals as a weighted composite.
+
+  SB1: FFPI=0.139 (Very Low) | TWI_mean=6.78 | SPI_mean=271511.12 | Flood priority: Moderate
+  SB2: FFPI=0.137 (Very Low) | TWI_mean=6.78 | SPI_mean=254221.58 | Flood priority: Low
+  SB3: FFPI=0.129 (Very Low) | TWI_mean=6.86 | SPI_mean=2017981.88 | Flood priority: High
+
+REFERENCES (Advanced Sections)
+----------------------------------------
+  Bull, W.B. & McFadden, L.D. (1977). Tectonic geomorphology N & S of the Garlock fault. Geomorphology in arid regions, 115Ã¢â‚¬â€œ138.
+  Cox, R.T. (1994). Analysis of drainage basin symmetry. Geology, 22(9), 813Ã¢â‚¬â€œ816.
+  El Hamdouni, R. et al. (2008). Assessment of relative active tectonics, SE Spain. Geomorphology, 96(1Ã¢â‚¬â€œ2), 150Ã¢â‚¬â€œ173.
+  Flint, J.J. (1974). Stream gradient as a function of order, magnitude, and discharge. Water Resources Research, 10(5), 969Ã¢â‚¬â€œ973.
+  Gregory, K.J. & Walling, D.E. (1973). Drainage Basin Form and Process. Edward Arnold.
+  Hack, J.T. (1973). Stream-profile analysis and stream-gradient index. USGS Journal of Research, 1(4), 421Ã¢â‚¬â€œ429.
+  Moore, I.D., Grayson, R.B. & Ladson, A.R. (1991). Digital terrain modelling. Hydrological Processes, 5(1), 3Ã¢â‚¬â€œ30.
+  Moore, I.D. & Burch, G.J. (1986). Sediment transport capacity of sheet and rill flow. Water Resources Research, 22(13), 1350Ã¢â‚¬â€œ1360.
+  Perron, J.T. & Royden, L. (2012). An integral approach to bedrock river profile analysis. Earth Surface Processes and Landforms, 38(6), 570Ã¢â‚¬â€œ576.
+  Smith, G.H. (2003). The morphometry of drainage basins. Annals of the Association of American Geographers.
