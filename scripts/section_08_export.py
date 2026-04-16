@@ -1,58 +1,30 @@
-print("SECTION 8 Ã¢â‚¬â€ OUTPUT EXPORT")
-print("=" * 60)
+# === SECTION 8: OUTPUT EXPORT SUITE (VERBATIM) ===
+import os, sys
+import pandas as pd
+import geopandas as gpd
 
-# Ã¢â€â‚¬Ã¢â€â‚¬ 1. Master morphometric table Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# 1. Master Csv Export
 master_csv = os.path.join(TABLES_DIR, "morphometric_master_table.csv")
 df_master.to_csv(master_csv)
-print(f"\n[1] Master table Ã¢â€ â€™ {master_csv}")
+print(f"📊 Global Table Exported: {master_csv}")
 
-print("\n  Ã¢â€â‚¬Ã¢â€â‚¬ First 10 rows (all basins if Ã¢â€°Â¤ 10) Ã¢â€â‚¬Ã¢â€â‚¬")
-print(df_master.head(10).to_string())
+# 2. Priority Shapefile Export
+priority_shp = os.path.join(SHAPES_DIR, "subbasins_priority.shp")
+gdf_priority.to_file(priority_shp)
+print(f"🗺️ Priority Shapefile Exported: {priority_shp}")
 
-# Ã¢â€â‚¬Ã¢â€â‚¬ 2. Stream order summary Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-print("\n[2] Stream Order Summary:")
-all_order_rows = []
+# 3. Stream Order Summary
+all_order_data = []
 for bid, df_lin in LINEAR_PER_ORDER.items():
-    df_lin_c = df_lin.copy()
-    df_lin_c['basin_id'] = bid
-    all_order_rows.append(df_lin_c)
+    df_c = df_lin.copy(); df_c['basin_id'] = bid
+    all_order_data.append(df_c)
+if all_order_data:
+    pd.concat(all_order_data).to_csv(os.path.join(TABLES_DIR, "stream_order_summary.csv"), index=False)
 
-if all_order_rows:
-    df_order_summary = pd.concat(all_order_rows, ignore_index=True)
-    df_order_summary.to_csv(os.path.join(TABLES_DIR, "stream_order_summary.csv"), index=False)
-    print(df_order_summary.to_string(index=False))
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ 3. Statistical summary Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-print("\n[3] Statistical Summary (mean Ã‚Â± std):")
-for col in STAT_COLS[:12]:
-    if col in df_master.columns:
-        mn  = df_master[col].mean()
-        sd  = df_master[col].std()
-        cv  = (sd / mn * 100) if mn != 0 else np.nan
-        print(f"  {col:<35s} {mn:>10.4f} Ã‚Â± {sd:>8.4f}  (CV={cv:>6.1f}%)")
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ 4. Ranking table Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-print("\n[4] Prioritization Ranking:")
-rank_csv = os.path.join(TABLES_DIR, "prioritization_ranking.csv")
-print(pd.read_csv(rank_csv, index_col=0).to_string())
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ 5. Priority classification Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-print("\n[5] Priority Classification Summary:")
-for bid in gdf_sub['basin_id']:
-    if bid in df_rank.index:
-        r = df_rank.loc[bid]
-        print(f"  {bid}: M1={r['Priority_M1']:<8} M2={r['Priority_M2']:<8} M3={r['Priority_M3']}")
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ 6. Summary of all output files Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-print(f"\n[6] Output files:")
-for root, dirs, files in os.walk(OUT_DIR):
+# 4. Inventory of Generated Products
+print("\n--- OUTPUT INVENTORY ---")
+for root, _, files in os.walk(OUT_DIR):
     for f in sorted(files):
-        full = os.path.join(root, f)
-        size = os.path.getsize(full) / 1024
-        print(f"  {full.replace(OUT_DIR, ''):<60s}  {size:>8.1f} KB")
+        print(f" - {os.path.relpath(os.path.join(root, f), OUT_DIR)}")
 
-print("\nÃ¢Å“â€¦ SECTION 8 complete.")
-
-
-
-print("\n" + "=" * 60)
+print("✅ Section 08 Verbatim Restoral Complete.")

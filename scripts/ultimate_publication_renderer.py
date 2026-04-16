@@ -45,33 +45,35 @@ ESRI_WORLD_TOPO = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_To
 transformer_to_wgs = Transformer.from_crs('EPSG:32643', 'EPSG:4326', always_xy=True)
 transformer_to_utm = Transformer.from_crs('EPSG:4326', 'EPSG:32643', always_xy=True)
 
-# ── THE ULTIMATE REGISTRY (All 24 Maps) ──────────────────────────────────────
+# ── THE ULTIMATE REGISTRY (All 25 Maps) ──────────────────────────────────────
 ULTIMATE_REGISTRY = [
     {"id": "01", "name": "Digital Elevation Model", "path": "data/watershed_data/Filled DEM.tif", "cmap": "terrain", "label": "Elevation (m)"},
-    {"id": "02", "name": "Slope Distribution", "path": "outputs/slope.tif", "cmap": "magma", "label": "Slope (Degrees)"},
-    {"id": "03", "name": "Aspect Map", "path": "outputs/aspect.tif", "cmap": "twilight", "label": "Aspect (Degrees)"},
-    {"id": "04", "name": "Topographic Wetness Index", "path": "outputs/twi.tif", "cmap": "GnBu", "label": "TWI Value"},
-    {"id": "05", "name": "Stream Power Index", "path": "outputs/spi.tif", "cmap": "magma", "label": "SPI Value (Log)", "norm": "log"},
-    {"id": "06", "name": "Sediment Transport Index", "path": "outputs/sti.tif", "cmap": "YlOrRd", "label": "STI Value (Log)", "norm": "log"},
-    {"id": "07", "name": "Topographic Ruggedness Index", "path": "outputs/tri.tif", "cmap": "bone", "label": "TRI Value"},
-    {"id": "08", "name": "Tectonic Lineament Density", "path": "outputs/lineament_proxy.tif", "cmap": "Reds", "label": "Density (km/km2)"},
+    {"id": "02", "name": "Slope Distribution", "path": "outputs/thematic_rasters/slope.tif", "cmap": "magma", "label": "Slope (Degrees)"},
+    {"id": "03", "name": "Aspect Map", "path": "outputs/thematic_rasters/aspect.tif", "cmap": "twilight", "label": "Aspect (Degrees)"},
+    {"id": "04", "name": "Topographic Wetness Index", "path": "outputs/thematic_rasters/twi.tif", "cmap": "GnBu", "label": "TWI Value"},
+    {"id": "05", "name": "Stream Power Index", "path": "outputs/thematic_rasters/spi.tif", "cmap": "magma", "label": "SPI Value (Log)", "norm": "log"},
+    {"id": "06", "name": "Sediment Transport Index", "path": "outputs/thematic_rasters/sti.tif", "cmap": "YlOrRd", "label": "STI Value (Log)", "norm": "log"},
+    {"id": "07", "name": "Topographic Ruggedness Index", "path": "outputs/thematic_rasters/tri.tif", "cmap": "magma", "label": "TRI Value"},
+    {"id": "08", "name": "Tectonic Lineament Density", "path": "outputs/thematic_rasters/lineament_proxy.tif", "cmap": "Reds", "label": "Density (km/km2)"},
     {"id": "09", "name": "Flow Direction", "path": "data/watershed_data/Flow Direction.tif", "cmap": "tab20", "label": "Direction Code"},
     {"id": "10", "name": "Flow Accumulation", "path": "data/watershed_data/FlowAccumilation.tif", "cmap": "Blues", "label": "Cell Count"},
-    {"id": "11", "name": "Curve Number CN Map", "path": "outputs/CN.tif", "cmap": "YlGn", "label": "CN Value"},
-    {"id": "12", "name": "Flash Flood Potential Index", "path": "outputs/FFPI.tif", "cmap": "OrRd", "label": "FFPI Value"},
-    {"id": "13", "name": "Geomorphic Anomaly Index", "path": "outputs/GAI.tif", "cmap": "coolwarm", "label": "GAI Value"},
-    {"id": "14", "name": "HI High Anomaly Areas", "path": "outputs/GAI_high_anomaly.tif", "cmap": "Reds", "label": "Anomaly Severity"},
-    {"id": "15", "name": "Percolation Potential", "path": "outputs/percolation_potential.tif", "cmap": "Greens", "label": "Suitability Class"},
-    {"id": "16", "name": "Contour Trench Suitability", "path": "outputs/contour_trench_suitability.tif", "cmap": "Purples", "label": "Suitability Class"},
-    {"id": "17", "name": "RUSLE Potential Soil Loss", "path": "outputs/RUSLE_A.tif", "cmap": "YlOrBr", "label": "Loss (t/ha/yr)"},
-    {"id": "18", "name": "RUSLE C-Factor Land Cover", "path": "outputs/RUSLE_C.tif", "cmap": "PiYG", "label": "C-Factor"},
-    {"id": "19", "name": "RUSLE K-Factor Erodibility", "path": "outputs/RUSLE_K.tif", "cmap": "copper", "label": "K-Factor"},
-    {"id": "20", "name": "RUSLE LS-Factor Topography", "path": "outputs/RUSLE_LS.tif", "cmap": "inferno", "label": "LS-Factor"},
-    {"id": "21", "name": "RUSLE P-Factor Conservation", "path": "outputs/RUSLE_P.tif", "cmap": "summer", "label": "P-Factor"},
-    {"id": "22", "name": "RUSLE R-Factor Rainfall", "path": "outputs/RUSLE_R.tif", "cmap": "YlGnBu", "label": "R-Factor"},
-    {"id": "23", "name": "Stream Order Map", "path": "data/watershed_data/StreamOrder.tif", "cmap": "Spectral", "label": "Order"},
-    {"id": "24", "name": "Drainage Density Map", "path": "data/watershed_data/Flowthreshould.tif", "cmap": "jet", "label": "Density Class"}
+    {"id": "11", "name": "Curve Number CN Map", "path": "outputs/thematic_rasters/CN.tif", "cmap": "YlGn", "label": "CN Value"},
+    {"id": "12", "name": "Flash Flood Potential Index", "path": "outputs/thematic_rasters/FFPI.tif", "cmap": "OrRd", "label": "FFPI Value"},
+    {"id": "13", "name": "Geomorphic Anomaly Index", "path": "outputs/thematic_rasters/GAI.tif", "cmap": "coolwarm", "label": "GAI Value"},
+    {"id": "14", "name": "HI High Anomaly Areas", "path": "outputs/thematic_rasters/GAI_high_anomaly.tif", "cmap": "Reds", "label": "Anomaly Severity"},
+    {"id": "15", "name": "Percolation Potential", "path": "outputs/thematic_rasters/percolation_potential.tif", "cmap": "Greens", "label": "Suitability Class"},
+    {"id": "16", "name": "Contour Trench Suitability", "path": "outputs/thematic_rasters/contour_trench_suitability.tif", "cmap": "Purples", "label": "Suitability Class"},
+    {"id": "17", "name": "RUSLE Potential Soil Loss", "path": "outputs/thematic_rasters/RUSLE_A.tif", "cmap": "YlOrBr", "label": "Loss (t/ha/yr)"},
+    {"id": "18", "name": "RUSLE C-Factor Land Cover", "path": "outputs/thematic_rasters/RUSLE_C.tif", "cmap": "PiYG", "label": "C-Factor"},
+    {"id": "19", "name": "RUSLE K-Factor Erodibility", "path": "outputs/thematic_rasters/RUSLE_K.tif", "cmap": "copper", "label": "K-Factor"},
+    {"id": "20", "name": "RUSLE LS-Factor Topography", "path": "outputs/thematic_rasters/RUSLE_LS.tif", "cmap": "inferno", "label": "LS-Factor"},
+    {"id": "21", "name": "RUSLE P-Factor Conservation", "path": "outputs/thematic_rasters/RUSLE_P.tif", "cmap": "summer", "label": "P-Factor"},
+    {"id": "22", "name": "RUSLE R-Factor Rainfall", "path": "outputs/thematic_rasters/RUSLE_R.tif", "cmap": "YlGnBu", "label": "R-Factor"},
+    {"id": "23", "name": "Stream Order Map", "path": "data/watershed_data/SteamOrder.shp", "categorical": True, "legend_type": "lines"},
+    {"id": "24", "name": "Drainage Density Map", "path": "data/watershed_data/Flowthreshould.tif", "cmap": "jet", "label": "Density Class"},
+    {"id": "25", "name": "Topographic Contour Map", "path": "data/watershed_data/Filled DEM.tif", "categorical": True, "legend_type": "lines"}
 ]
+
 
 # ── LOGIC UTILITIES ──────────────────────────────────────────────────────────
 
@@ -94,6 +96,26 @@ def get_clip_patch(ax, shp_path):
         patches.append(MPath(verts, codes))
     return PathPatch(MPath.make_compound_path(*patches), transform=ax.transData)
 
+def add_line_legend_panel(ax, colors, labels, title='Legend', internal=False):
+    if internal:
+        # Bottom-Right Inside Grid (Tucked deeper into corner)
+        ax_p = ax.inset_axes([0.72, 0.01, 0.27, 0.25], transform=ax.transAxes)
+    else:
+        # Standard Outside Right
+        ax_p = ax.inset_axes([1.05, 0.2, 0.25, 0.6], transform=ax.transAxes)
+    
+    ax_p.axis('off')
+    # Add a subtle semi-transparent white background for internal legends
+    if internal:
+        ax_p.patch.set_facecolor('white')
+        ax_p.patch.set_alpha(0.7)
+        
+    ax_p.text(0, 1.0, title, fontweight='bold', fontsize=12, transform=ax_p.transAxes)
+    for i, (col, lbl) in enumerate(zip(colors, labels)):
+        y = 0.85 - (i * 0.12) if internal else 0.9 - (i * 0.08)
+        ax_p.plot([0, 0.15], [y, y], color=col, lw=3.0, transform=ax_p.transAxes)
+        ax_p.text(0.20, y, lbl, va='center', fontsize=11 if internal else 10, transform=ax_p.transAxes)
+
 # ── CORE RENDERER ─────────────────────────────────────────────────────────────
 
 def render_ultimate_map(m_cfg, boundary_path):
@@ -101,7 +123,7 @@ def render_ultimate_map(m_cfg, boundary_path):
     fig = plt.figure(figsize=A4_LANDSCAPE, dpi=DPI, facecolor='white')
     ax = fig.add_axes([0.14, 0.15, 0.60, 0.70])
     
-    gdf_bound = gpd.read_file(boundary_path)
+    gdf_bound = gpd.read_file(boundary_path).dissolve()
     
     # Basemap (Always ESRI World Topo)
     ctx.add_basemap(ax, crs='EPSG:32643', source=ESRI_WORLD_TOPO, alpha=0.8, attribution=False, zorder=0, zoom=10)
@@ -110,18 +132,57 @@ def render_ultimate_map(m_cfg, boundary_path):
     patch = get_clip_patch(ax, boundary_path)
     ax.set_clip_path(patch)
 
+    # ── MAP CORE CONTENT ──────────────────────────────────────────────────────
     data_path = m_cfg['path']
-    if os.path.exists(data_path):
+    if not os.path.exists(data_path):
+        print(f"Warning: Path {data_path} not found.")
+        return
+
+    # Draw Study Area Boundary (Always, on top)
+    gdf_bound.plot(ax=ax, facecolor='none', edgecolor='black', linewidth=2.0, zorder=100)
+
+    if m_cfg.get('legend_type') == 'lines':
+        if m_cfg['id'] == '23': # Stream Order (Vector)
+            gdf_so = gpd.read_file(data_path)
+            # Use 'grid_code' for order (lowercase as per file metadata)
+            order_col = 'grid_code' if 'grid_code' in gdf_so.columns else None
+            if order_col:
+                orders = sorted(gdf_so[order_col].unique())
+                cmap = plt.get_cmap('plasma_r', len(orders))
+                colors = [cmap(i) for i in range(len(orders))]
+                for i, order in enumerate(orders):
+                    gdf_so[gdf_so[order_col] == order].plot(ax=ax, color=colors[i], lw=0.4 + order*0.7, zorder=10)
+                add_line_legend_panel(ax, colors, [f"Order {int(ord)}" for ord in orders], title='Stream Order', internal=True)
+            else:
+                gdf_so.plot(ax=ax, color='blue', lw=1.0, zorder=10)
+                add_line_legend_panel(ax, ['blue'], ['Stream Network'], title='Streams')
+        
+        elif m_cfg['id'] == '25': # Contour Map (from DEM)
+            with rasterio.open(data_path) as src:
+                out_image, out_transform = rio_mask(src, gdf_bound.geometry, crop=False)
+                arr = out_image[0].astype(float); arr[arr == src.nodata] = np.nan
+                b = src.bounds
+                x = np.linspace(b.left, b.right, arr.shape[1])
+                y = np.linspace(b.bottom, b.top, arr.shape[0])[::-1]
+                XX, YY = np.meshgrid(x, y)
+                
+                # Single 25m interval as requested
+                levels = np.arange(np.floor(np.nanmin(arr)/25)*25, np.nanmax(arr)+25, 25)
+                
+                # No labels as requested to avoid crowding
+                ax.contour(XX, YY, arr, levels=levels, colors='#5D2906', linewidths=0.8, alpha=0.8, zorder=9)
+                
+                add_line_legend_panel(ax, ['#5D2906'], ['Contour Interval - 25 mtr'], title='Topography', internal=True)
+        
+    
+    else: # Default Raster Rendering
         with rasterio.open(data_path) as src:
             out_image, out_transform = rio_mask(src, gdf_bound.geometry, crop=False)
             data = out_image[0].astype(float); data[data == src.nodata] = np.nan
             ext = [src.bounds.left, src.bounds.right, src.bounds.bottom, src.bounds.top]
             
-            # Vivid Rendering (Enhanced Contrast)
             if m_cfg.get('norm') == 'log':
-                # Use LogNorm for highly skewed data like SPI/STI
                 from matplotlib.colors import LogNorm
-                # Clip to small epsilon to avoid log(0)
                 d_safe = np.where(data <= 0, np.nanmin(data[data > 0]) if np.any(data > 0) else 1e-6, data)
                 norm = LogNorm(vmin=np.nanmin(d_safe), vmax=np.nanmax(d_safe))
                 im = ax.imshow(d_safe, extent=ext, cmap=m_cfg['cmap'], alpha=1.0, zorder=5, norm=norm)
@@ -129,7 +190,6 @@ def render_ultimate_map(m_cfg, boundary_path):
                 norm = mcolors.Normalize(vmin=np.nanmin(data), vmax=np.nanmax(data))
                 im = ax.imshow(data, extent=ext, cmap=m_cfg['cmap'], alpha=1.0, zorder=5, norm=norm)
             
-            # Legend (Matched Height)
             divider = make_axes_locatable(ax)
             cax = divider.append_axes("right", size="3%", pad=0.7)
             sm = plt.cm.ScalarMappable(cmap=plt.get_cmap(m_cfg['cmap']), norm=norm)
@@ -154,14 +214,16 @@ def render_ultimate_map(m_cfg, boundary_path):
     ax.tick_params(axis='x', which='major', labelsize=11)
     ax.grid(True, linestyle=(0, (1, 15)), color='black', alpha=0.3, zorder=0)
 
-    # 5km Spatial Buffer
-    xl, xr = gdf_bound.total_bounds[0], gdf_bound.total_bounds[2]
-    yl, yr = gdf_bound.total_bounds[1], gdf_bound.total_bounds[3]
-    buffer = 5000; ax.set_xlim(xl-buffer, xr+buffer); ax.set_ylim(yl-buffer, yr+buffer)
+    # Standard buffer plus extra room on right and bottom for internal Legend (IDs 23, 25)
+    xl, yl, xr, yr = gdf_bound.total_bounds
+    width, height = xr-xl, yr-yl
+    # Asymmetrical padding: basin shifted slightly Top-Left to clear Bottom-Right corner
+    ax.set_xlim(xl - 5000, xr + width * 0.28)
+    ax.set_ylim(yl - height * 0.22, yr + 5000)
 
     # Internal Furniture (Small & Cornered)
     ax.text(0.02, 0.97, m_cfg['name'].upper(), ha='left', va='top', fontweight='bold', fontsize=18, transform=ax.transAxes, zorder=300)
-    ax.text(0.02, 0.93, "Region Pravara River Basin", ha='left', va='top', style='italic', fontsize=12, transform=ax.transAxes, zorder=300)
+    # Subtitle removed globally
     
     nax = ax.inset_axes([0.94, 0.90, 0.04, 0.07], transform=ax.transAxes, zorder=305)
     nax.axis('off')
