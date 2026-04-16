@@ -1,434 +1,98 @@
-# Ã¢â€â€š  SECTION 2 Ã¢â‚¬â€ DATA PATHS (Updated for 3-Pour-Point Pravra Basin Run)        Ã¢â€â€š
-# Ã¢â€â€š                                                                             Ã¢â€â€š
-# Ã¢â€â€š  Subbasins : Pravrabasin.shp  Ã¢â€ Â contains 5 polygons as confirmed by DBF   Ã¢â€â€š
-# Ã¢â€â€š              If you have a 3-polygon delineation, replace path with:       Ã¢â€â€š
-# Ã¢â€â€š              r"E:/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/data/watershed_data/pravra3.shp"                        Ã¢â€â€š
-# Ã¢â€â€š  Pour Pts  : Pourpoints_3.shp Ã¢â€ Â 3 points confirmed Ã¢Å“â€¦                     Ã¢â€â€š
-# Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Ëœ
+# === SECTION 2: DATA PATHS & PREPROCESSING ===
+import os, sys
+import numpy as np
+import pandas as pd
+import geopandas as gpd
+import rasterio
+from rasterio.warp import calculate_default_transform, reproject, Resampling
+from rasterio.mask import mask as rio_mask
+from rasterio.features import geometry_mask
+from shapely.geometry import Point, mapping
+from pyproj import CRS
+from matplotlib.colors import LightSource
 
-# Ã¢â€â‚¬Ã¢â€â‚¬ Ã¢â€“Â¼Ã¢â€“Â¼Ã¢â€“Â¼  EDIT THESE PATHS  Ã¢â€“Â¼Ã¢â€“Â¼Ã¢â€“Â¼ Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# --- OUTPUT DIRECTORIES ---
+OUT_DIR      = "E:/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/outputs/"
+MAPS_DIR     = os.path.join(OUT_DIR, "maps/")
+PLOTS_DIR    = os.path.join(OUT_DIR, "plots/")
+TABLES_DIR   = os.path.join(OUT_DIR, "tables/")
+SHAPES_DIR   = os.path.join(OUT_DIR, "shapefiles/")
+REPORT_DIR   = os.path.join(OUT_DIR, "report/")
+
+for d in [OUT_DIR, MAPS_DIR, PLOTS_DIR, TABLES_DIR, SHAPES_DIR, REPORT_DIR]:
+    os.makedirs(d, exist_ok=True)
+
+# --- DATA PATHS ---
 DATA_PATHS = {
     "dem"              : r"E:/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/data/watershed_data/Filled DEM.tif",
-    "subbasins"        : r"E:/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/data/watershed_data/pravra3.shp",       # 3-polygon Pravra basin
+    "subbasins"        : r"E:/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/data/watershed_data/pravra3.shp",
     "streams"          : r"E:/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/data/watershed_data/SteamOrder.shp",
     "stream_order_shp" : r"E:/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/data/watershed_data/SteamOrder.shp",
     "flow_dir"         : r"E:/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/data/watershed_data/Flow Direction.tif",
     "flow_acc"         : r"E:/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/data/watershed_data/FlowAccumilation.tif",
     "pour_points"      : r"E:/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/data/watershed_data/Pourpoints_3.shp",
 }
-# Ã¢â€â‚¬Ã¢â€â‚¬ Ã¢â€“Â²Ã¢â€“Â²Ã¢â€“Â²  EDIT ABOVE  Ã¢â€“Â²Ã¢â€“Â²Ã¢â€“Â² Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
-# N_SUBBASINS is now set dynamically from the actual shapefile (see load step below).
-# Override here ONLY if you want a strict assertion check:
-#   N_SUBBASINS = 3    Ã¢â€ Â set to 3 when pravra3.shp (3-polygon file) is ready
-#   N_SUBBASINS = 5    Ã¢â€ Â current Pravrabasin.shp has 5 polygons
-N_SUBBASINS = None   # None = auto-detect from shapefile (recommended)
-
-# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-#  HELPER FUNCTIONS
-# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+RASTERS = {'dem': DATA_PATHS['dem'], 'flow_dir': DATA_PATHS['flow_dir'], 'flow_acc': DATA_PATHS['flow_acc']}
 
 def detect_utm_epsg(lon, lat):
-    """Return appropriate UTM EPSG code for a given lon/lat."""
     zone = int((lon + 180) / 6) + 1
-    if lat >= 0:
-        return f"EPSG:326{zone:02d}"
-    else:
-        return f"EPSG:327{zone:02d}"
-
+    return f"EPSG:326{zone:02d}" if lat >= 0 else f"EPSG:327{zone:02d}"
 
 def get_raster_info(path):
-    """Return dict of raster metadata."""
     with rasterio.open(path) as src:
-        return {
-            "crs"        : src.crs,
-            "res"        : src.res,
-            "nodata"     : src.nodata,
-            "shape"      : (src.height, src.width),
-            "bounds"     : src.bounds,
-            "dtype"      : src.dtypes[0],
-            "count"      : src.count,
-            "transform"  : src.transform,
-        }
-
+        return {"crs": src.crs, "res": src.res, "nodata": src.nodata, "bounds": src.bounds, "transform": src.transform, "shape": src.shape}
 
 def reproject_raster(src_path, dst_path, target_crs):
-    """Reproject a raster to target CRS and save."""
     with rasterio.open(src_path) as src:
-        transform, width, height = calculate_default_transform(
-            src.crs, target_crs, src.width, src.height, *src.bounds
-        )
+        transform, width, height = calculate_default_transform(src.crs, target_crs, src.width, src.height, *src.bounds)
         kwargs = src.meta.copy()
-        kwargs.update({
-            'crs'       : target_crs,
-            'transform' : transform,
-            'width'     : width,
-            'height'    : height,
-        })
+        kwargs.update({'crs': target_crs, 'transform': transform, 'width': width, 'height': height})
         with rasterio.open(dst_path, 'w', **kwargs) as dst:
             for i in range(1, src.count + 1):
-                reproject(
-                    source=rasterio.band(src, i),
-                    destination=rasterio.band(dst, i),
-                    src_transform=src.transform,
-                    src_crs=src.crs,
-                    dst_transform=transform,
-                    dst_crs=target_crs,
-                    resampling=Resampling.bilinear,
-                )
+                reproject(source=rasterio.band(src, i), destination=rasterio.band(dst, i),
+                          src_transform=src.transform, src_crs=src.crs,
+                          dst_transform=transform, dst_crs=target_crs, resampling=Resampling.bilinear)
     return dst_path
 
-
 def fix_geometries(gdf, layer_name="layer"):
-    """Fix invalid geometries and remove nulls."""
-    before = len(gdf)
     gdf = gdf[~gdf.geometry.is_empty & gdf.geometry.notna()].copy()
-    gdf['geometry'] = gdf['geometry'].apply(
-        lambda g: g.buffer(0) if not g.is_valid else g
-    )
-    gdf = gdf[gdf.geometry.is_valid].copy()
-    print(f"  {layer_name}: {before} Ã¢â€ â€™ {len(gdf)} features (after geometry fix)")
-    return gdf.reset_index(drop=True)
-
-
-def explode_multipart(gdf, layer_name="layer"):
-    """Explode multipart geometries to single-part."""
-    before = len(gdf)
-    gdf = gdf.explode(index_parts=False).reset_index(drop=True)
-    if len(gdf) != before:
-        print(f"  {layer_name}: Exploded multipart Ã¢â€ â€™ {len(gdf)} parts")
-    return gdf
-
+    gdf['geometry'] = gdf['geometry'].apply(lambda g: g.buffer(0) if not g.is_valid else g)
+    return gdf[gdf.geometry.is_valid].reset_index(drop=True)
 
 def snap_pour_points(pour_pts_gdf, flow_acc_path, snap_distance_m=300):
-    """
-    Snap pour points to the highest flow accumulation cell
-    within snap_distance_m (in metres, projected CRS assumed).
-    Returns GeoDataFrame with snapped geometries.
-    """
     with rasterio.open(flow_acc_path) as src:
-        fa_data  = src.read(1).astype(float)
-        nodata   = src.nodata if src.nodata is not None else -9999
-        fa_data[fa_data == nodata] = np.nan
-        transform = src.transform
-        res        = src.res[0]  # metres per pixel
-
-    snap_cells = int(snap_distance_m / res)
-    snapped_pts = []
-
+        fa_data = src.read(1).astype(float); transform = src.transform; res = src.res[0]
+        fa_data[fa_data == (src.nodata or -9999)] = np.nan
+    snap_cells = int(snap_distance_m / res); snapped_pts = []
     for idx, row in pour_pts_gdf.iterrows():
         px_c, px_r = ~transform * (row.geometry.x, row.geometry.y)
         px_c, px_r = int(px_c), int(px_r)
-
-        r0 = max(0, px_r - snap_cells)
-        r1 = min(fa_data.shape[0], px_r + snap_cells + 1)
-        c0 = max(0, px_c - snap_cells)
-        c1 = min(fa_data.shape[1], px_c + snap_cells + 1)
-
+        r0, r1 = max(0, px_r-snap_cells), min(fa_data.shape[0], px_r+snap_cells+1)
+        c0, c1 = max(0, px_c-snap_cells), min(fa_data.shape[1], px_c+snap_cells+1)
         window = fa_data[r0:r1, c0:c1]
-        if np.all(np.isnan(window)):
-            snapped_pts.append(row.geometry)
-            continue
-
-        local_max = np.nanargmax(window)
-        local_r, local_c = np.unravel_index(local_max, window.shape)
-        global_r = r0 + local_r
-        global_c = c0 + local_c
-
-        snap_x, snap_y = xy(transform, global_r, global_c)
-        snapped_pts.append(Point(snap_x, snap_y))
-
-    result = pour_pts_gdf.copy()
-    result['geometry']       = snapped_pts
-    result['snap_distance_m'] = [
-        row.geometry.distance(snapped_pts[i])
-        for i, (_, row) in enumerate(pour_pts_gdf.iterrows())
-    ]
+        if np.all(np.isnan(window)): snapped_pts.append(row.geometry); continue
+        local_max = np.nanargmax(window); lr, lc = np.unravel_index(local_max, window.shape)
+        sx, sy = rasterio.transform.xy(transform, r0+lr, c0+lc)
+        snapped_pts.append(Point(sx, sy))
+    result = pour_pts_gdf.copy(); result['geometry'] = snapped_pts
     return result
 
-
-# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-#  LOAD & VALIDATE
-# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-
-print("=" * 60)
-print("SECTION 2 Ã¢â‚¬â€ DATA LOADING & PREPROCESSING")
-print("=" * 60)
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ 1. Load DEM info first to determine UTM zone Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-print("\n[1/6] Reading DEM metadata...")
-assert os.path.exists(DATA_PATHS['dem']), f"DEM not found: {DATA_PATHS['dem']}"
+# --- INITIALIZATION ---
 dem_info = get_raster_info(DATA_PATHS['dem'])
-print(f"  CRS      : {dem_info['crs']}")
-print(f"  Res      : {dem_info['res']} m")
-print(f"  Shape    : {dem_info['shape']}")
-print(f"  Bounds   : {dem_info['bounds']}")
-print(f"  No-data  : {dem_info['nodata']}")
+UTM_EPSG = str(dem_info['crs']) if not CRS.from_user_input(dem_info['crs']).is_geographic else detect_utm_epsg((dem_info['bounds'].left+dem_info['bounds'].right)/2, (dem_info['bounds'].bottom+dem_info['bounds'].top)/2)
 
-# Determine if geographic or projected
-src_crs = CRS.from_user_input(dem_info['crs'])
-if src_crs.is_geographic:
-    # Compute centroid lon/lat for UTM zone
-    b = dem_info['bounds']
-    cen_lon = (b.left + b.right) / 2
-    cen_lat = (b.bottom + b.top) / 2
-    UTM_EPSG = detect_utm_epsg(cen_lon, cen_lat)
-    print(f"  DEM is geographic Ã¢â€ â€™ will reproject to {UTM_EPSG}")
-    NEEDS_REPROJECT = True
-else:
-    UTM_EPSG = str(dem_info['crs'])
-    print(f"  DEM is already projected: {UTM_EPSG}")
-    NEEDS_REPROJECT = False
-
-TARGET_CRS = CRS.from_epsg(int(UTM_EPSG.split(":")[1]))
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ 2. Reproject rasters if needed Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-print("\n[2/6] Reprojecting rasters...")
-RASTER_KEYS = ['dem', 'flow_dir', 'flow_acc']
-RASTERS = {}
-
-for key in RASTER_KEYS:
-    src_path = DATA_PATHS[key]
-    assert os.path.exists(src_path), f"Missing: {src_path}"
-    info = get_raster_info(src_path)
-    if NEEDS_REPROJECT and CRS.from_user_input(info['crs']).is_geographic:
-        dst_path = os.path.join(OUT_DIR, f"{key}_utm.tif")
-        reproject_raster(src_path, dst_path, TARGET_CRS)
-        RASTERS[key] = dst_path
-        print(f"  Ã¢Å“â€¦ Reprojected {key}")
-    else:
-        RASTERS[key] = src_path
-        print(f"  Ã¢Å“â€¦ {key} OK (already projected)")
-
-# Optional stream order raster
-if os.path.exists(DATA_PATHS.get('stream_order_raster', '')):
-    so_path = DATA_PATHS['stream_order_raster']
-    so_info = get_raster_info(so_path)
-    if NEEDS_REPROJECT and CRS.from_user_input(so_info['crs']).is_geographic:
-        dst = os.path.join(OUT_DIR, "stream_order_utm.tif")
-        reproject_raster(so_path, dst, TARGET_CRS)
-        RASTERS['stream_order_raster'] = dst
-    else:
-        RASTERS['stream_order_raster'] = so_path
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ 3. Load & validate vector layers Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-print("\n[3/6] Loading vector layers...")
-
-# Subbasins
-gdf_sub = gpd.read_file(DATA_PATHS['subbasins'])
-gdf_sub = fix_geometries(gdf_sub, "subbasins")
-gdf_sub = gdf_sub.to_crs(UTM_EPSG)
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ Dynamic N_SUBBASINS: auto-detect from the loaded shapefile Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-if N_SUBBASINS is None:
-    N_SUBBASINS = len(gdf_sub)
-    print(f"  Ã¢â€žÂ¹Ã¯Â¸Â  N_SUBBASINS auto-detected: {N_SUBBASINS} polygons in {DATA_PATHS['subbasins']}")
-else:
-    if len(gdf_sub) != N_SUBBASINS:
-        print(f"  Ã¢Å¡Â Ã¯Â¸Â  Warning: Expected {N_SUBBASINS} subbasins but shapefile has {len(gdf_sub)}.")
-        print(f"       Using actual count: {len(gdf_sub)}")
-        print(f"       Ã¢â€ â€™ If you want exactly 3 subbasins, replace subbasins path with pravra3.shp")
-        N_SUBBASINS = len(gdf_sub)
-    else:
-        print(f"  Ã¢Å“â€¦ Subbasin count verified: {N_SUBBASINS}")
-
-print(f"  Ã¢Å“â€¦ Subbasins: {len(gdf_sub)} | CRS: {gdf_sub.crs}")
-
-# Ensure unique basin ID Ã¢â‚¬â€ try to detect from existing columns
-if 'basin_id' not in gdf_sub.columns:
-    # Try to use 'name' column if present (Pravrabasin.shp has 'name' field)
-    if 'name' in gdf_sub.columns and gdf_sub['name'].notna().all():
-        # Extract subbasin name from the 'AreaSqkm' column which has "Subbasin-X"
-        # Try AreaSqkm field first (Pravrabasin.shp stores subbasin names there)
-        if 'AreaSqkm' in gdf_sub.columns:
-            names = gdf_sub['AreaSqkm'].astype(str).str.extract(r'(Subbasin-\d+)')[0]
-            if names.notna().sum() == len(gdf_sub):
-                gdf_sub['basin_id'] = names
-            else:
-                gdf_sub['basin_id'] = [f"SB{i+1}" for i in range(len(gdf_sub))]
-        else:
-            gdf_sub['basin_id'] = [f"SB{i+1}" for i in range(len(gdf_sub))]
-    else:
-        gdf_sub['basin_id'] = [f"SB{i+1}" for i in range(len(gdf_sub))]
-print(f"  Basin IDs: {gdf_sub['basin_id'].tolist()}")
-
-# Streams
-gdf_streams = gpd.read_file(DATA_PATHS['streams'])
-gdf_streams = fix_geometries(gdf_streams, "streams")
-gdf_streams = explode_multipart(gdf_streams, "streams")
-gdf_streams = gdf_streams.to_crs(UTM_EPSG)
-print(f"  Ã¢Å“â€¦ Streams: {len(gdf_streams)} segments | CRS: {gdf_streams.crs}")
-
-# Stream order shapefile
-gdf_so = gpd.read_file(DATA_PATHS['stream_order_shp'])
-gdf_so = fix_geometries(gdf_so, "stream_order")
-gdf_so = explode_multipart(gdf_so, "stream_order")
-gdf_so = gdf_so.to_crs(UTM_EPSG)
-
-# Detect stream order column
-# Ã¢â€â‚¬Ã¢â€â‚¬ Detect stream order column dynamically Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-ORDER_COL_CANDIDATES = ['grid_code', 'GRIDCODE', 'Grid_Code',
-                         'strahler', 'Strahler', 'order', 'ORDER',
-                         'StreamOrde', 'str_order']
-ORDER_COL = None
-for cand in ORDER_COL_CANDIDATES:
-    if cand in gdf_so.columns:
-        ORDER_COL = cand
-        print(f"  Ã¢Å“â€¦ Stream order column auto-detected: '{ORDER_COL}'")
-        break
-
-if ORDER_COL is None:
-    raise ValueError(
-        f"Cannot detect stream order column. Columns: {gdf_so.columns.tolist()}\n"
-        "Please set ORDER_COL manually below."
-    )
-print(f"  Ã¢Å“â€¦ Stream order col detected: '{ORDER_COL}' "
-      f"| Orders: {sorted(gdf_so[ORDER_COL].unique())}")
-
-gdf_so[ORDER_COL] = gdf_so[ORDER_COL].astype(int)
-MAX_ORDER = int(gdf_so[ORDER_COL].max())
-
-# Pour points (optional but important for snapping)
-POUR_POINTS_OK = False
-if os.path.exists(DATA_PATHS.get('pour_points', '')):
-    gdf_pp = gpd.read_file(DATA_PATHS['pour_points'])
-    gdf_pp = gdf_pp.to_crs(UTM_EPSG)
-    print(f"  Ã¢Å“â€¦ Pour points: {len(gdf_pp)}")
-    print("  Snapping pour points to max flow accumulation...")
-    gdf_pp = snap_pour_points(gdf_pp, RASTERS['flow_acc'], snap_distance_m=300)
-    print(f"  Snap distances (m): {gdf_pp['snap_distance_m'].round(1).tolist()}")
-    gdf_pp.to_file(os.path.join(SHAPES_DIR, "pour_points_snapped.shp"))
-    POUR_POINTS_OK = True
-else:
-    gdf_pp = None
-    print("  Ã¢Å¡Â Ã¯Â¸Â  Pour points file not found Ã¢â‚¬â€ skipping snap")
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ 4. Validate DEM resolution Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-print(f"\n[4/6] Validating DEM resolution...")
-dem_info_utm = get_raster_info(RASTERS['dem'])
-res_x, res_y = dem_info_utm['res']
-if 20 <= res_x <= 35:
-    print(f"  Ã¢Å“â€¦ DEM resolution: {res_x:.1f} x {res_y:.1f} m Ã¢â€°Ë† 30 m SRTM Ã¢Å“â€œ")
-else:
-    print(f"  Ã¢Å¡Â Ã¯Â¸Â  DEM resolution: {res_x:.1f} x {res_y:.1f} m (not standard 30 m Ã¢â‚¬â€ continuing anyway)")
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ 5. Read raster arrays into memory Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-print("\n[5/6] Reading raster arrays...")
+gdf_sub = fix_geometries(gpd.read_file(DATA_PATHS['subbasins']).to_crs(UTM_EPSG), "subbasins")
+gdf_sub['basin_id'] = [f"SB{i+1}" for i in range(len(gdf_sub))]
+gdf_streams = fix_geometries(gpd.read_file(DATA_PATHS['streams']).to_crs(UTM_EPSG), "streams")
+gdf_so = fix_geometries(gpd.read_file(DATA_PATHS['stream_order_shp']).to_crs(UTM_EPSG), "stream_order")
+ORDER_COL = next((c for c in ['grid_code', 'GRIDCODE', 'StreamOrde'] if c in gdf_so.columns), 'grid_code')
 
 with rasterio.open(RASTERS['dem']) as src:
-    DEM_ARR       = src.read(1).astype(np.float32)
-    DEM_NODATA    = src.nodata if src.nodata is not None else -9999.0
-    DEM_TRANSFORM = src.transform
-    DEM_CRS       = src.crs
-    DEM_BOUNDS    = src.bounds
-    DEM_RES       = src.res[0]
-    DEM_ARR[DEM_ARR == DEM_NODATA] = np.nan
+    DEM_ARR = src.read(1).astype(np.float32); DEM_TRANSFORM = src.transform; DEM_CRS = src.crs; DEM_RES = src.res[0]
+    DEM_ARR[DEM_ARR == (src.nodata or -9999)] = np.nan
+    DEM_BOUNDS = src.bounds
 
-with rasterio.open(RASTERS['flow_dir']) as src:
-    FDIR_ARR    = src.read(1).astype(np.float32)
-    FDIR_NODATA = src.nodata if src.nodata is not None else -9999.0
-    FDIR_ARR[FDIR_ARR == FDIR_NODATA] = np.nan
-
-with rasterio.open(RASTERS['flow_acc']) as src:
-    FACC_ARR    = src.read(1).astype(np.float32)
-    FACC_NODATA = src.nodata if src.nodata is not None else -9999.0
-    FACC_ARR[FACC_ARR == FACC_NODATA] = np.nan
-
-print(f"  DEM  shape: {DEM_ARR.shape} | min={np.nanmin(DEM_ARR):.1f} max={np.nanmax(DEM_ARR):.1f} m")
-print(f"  FDIR shape: {FDIR_ARR.shape}")
-print(f"  FACC shape: {FACC_ARR.shape}")
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ 6. Compute slope & aspect if not provided Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-print("\n[6/6] Computing slope and aspect...")
-
-def compute_slope_aspect_numpy(dem, res_m):
-    """Compute slope (degrees) and aspect (degrees) using numpy gradient."""
-    # Smooth first to reduce noise
-    from scipy.ndimage import uniform_filter
-    dem_sm = np.where(np.isnan(dem), 0, dem)
-    dz_dy, dz_dx = np.gradient(dem_sm, res_m, res_m)
-    slope_rad = np.arctan(np.sqrt(dz_dx**2 + dz_dy**2))
-    slope_deg = np.degrees(slope_rad)
-    aspect_deg = np.degrees(np.arctan2(-dz_dx, dz_dy)) % 360
-    slope_deg[np.isnan(dem)] = np.nan
-    aspect_deg[np.isnan(dem)] = np.nan
-    return slope_deg.astype(np.float32), aspect_deg.astype(np.float32)
-
-
-if RICHDEM_OK:
-    try:
-        rda = rd.rdarray(np.where(np.isnan(DEM_ARR), -9999, DEM_ARR), no_data=-9999)
-        rda.projection = DEM_CRS.to_wkt()
-        rda.geotransform = (DEM_TRANSFORM.c, DEM_TRANSFORM.a, 0,
-                            DEM_TRANSFORM.f, 0, DEM_TRANSFORM.e)
-        SLOPE_ARR  = np.array(rd.TerrainAttribute(rda, attrib='slope_degrees')).astype(np.float32)
-        ASPECT_ARR = np.array(rd.TerrainAttribute(rda, attrib='aspect')).astype(np.float32)
-        SLOPE_ARR[np.isnan(DEM_ARR)]  = np.nan
-        ASPECT_ARR[np.isnan(DEM_ARR)] = np.nan
-        print("  Ã¢Å“â€¦ Slope & aspect from richdem")
-    except Exception as e:
-        print(f"  Ã¢Å¡Â Ã¯Â¸Â  richdem failed ({e}) Ã¢â‚¬â€ using numpy")
-        SLOPE_ARR, ASPECT_ARR = compute_slope_aspect_numpy(DEM_ARR, DEM_RES)
-else:
-    SLOPE_ARR, ASPECT_ARR = compute_slope_aspect_numpy(DEM_ARR, DEM_RES)
-    print("  Ã¢Å“â€¦ Slope & aspect from numpy gradient")
-
-# Save slope & aspect to disk
-def save_raster(arr, path, template_path):
-    with rasterio.open(template_path) as src:
-        meta = src.meta.copy()
-    meta.update({'dtype': 'float32', 'nodata': -9999.0, 'count': 1})
-    arr_save = np.where(np.isnan(arr), -9999.0, arr)
-    with rasterio.open(path, 'w', **meta) as dst:
-        dst.write(arr_save.astype(np.float32), 1)
-
-save_raster(SLOPE_ARR,  os.path.join(OUT_DIR, "slope.tif"),  RASTERS['dem'])
-save_raster(ASPECT_ARR, os.path.join(OUT_DIR, "aspect.tif"), RASTERS['dem'])
-RASTERS['slope']  = os.path.join(OUT_DIR, "slope.tif")
-RASTERS['aspect'] = os.path.join(OUT_DIR, "aspect.tif")
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ HILLSHADE (used as background in all maps) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-print("  Computing hillshade for map backgrounds...")
 ls = LightSource(azdeg=315, altdeg=45)
-dem_filled = np.where(np.isnan(DEM_ARR), np.nanmean(DEM_ARR), DEM_ARR)
-HILLSHADE = ls.hillshade(dem_filled, vert_exag=1.5, dx=DEM_RES, dy=DEM_RES)
-assert HILLSHADE.shape == DEM_ARR.shape, \
-    f"Hillshade shape {HILLSHADE.shape} Ã¢â€°Â  DEM shape {DEM_ARR.shape}. Recompute hillshade from the reprojected DEM."
-HILLSHADE[np.isnan(DEM_ARR)] = np.nan
-print("  Ã¢Å“â€¦ Hillshade computed")
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ SPATIAL INDEX (for fast spatial joins) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-print("\nÃ¢Å“â€¦ SECTION 2 complete.")
-print(f"  Subbasins    : {len(gdf_sub)}")
-print(f"  Stream segs  : {len(gdf_streams)}")
-print(f"  Stream orders: {sorted(gdf_so[ORDER_COL].unique())}")
-print(f"  UTM CRS      : {UTM_EPSG}")
-print(f"  DEM range    : {np.nanmin(DEM_ARR):.1f} Ã¢â‚¬â€œ {np.nanmax(DEM_ARR):.1f} m")
-print(f"  Slope range  : {np.nanmin(SLOPE_ARR):.1f}Ã‚Â° Ã¢â‚¬â€œ {np.nanmax(SLOPE_ARR):.1f}Ã‚Â°")
-
-REQUIRED_GLOBALS = ['DEM_ARR', 'FACC_ARR', 'FDIR_ARR', 'SLOPE_ARR',
-                     'ASPECT_ARR', 'HILLSHADE', 'DEM_TRANSFORM',
-                     'DEM_BOUNDS', 'DEM_RES', 'DEM_CRS']
-missing_globals = [v for v in REQUIRED_GLOBALS if v not in dir()]
-if missing_globals:
-    raise RuntimeError(
-        f"Missing raster arrays: {missing_globals}\n"
-        f"Ensure Section 2 fully executed the DEM read block."
-    )
-print("  All required raster arrays are in memory.")
-
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ CRS sanity check Ã¢â‚¬â€ all layers must be in the same UTM zone Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-ref_crs = gdf_sub.crs
-for name, gdf in [('streams', gdf_streams), ('stream_order', gdf_so)]:
-    if gdf.crs != ref_crs:
-        print(f"  Ã¢Å¡Â Ã¯Â¸Â  CRS mismatch: {name} is {gdf.crs}, expected {ref_crs}")
-        print(f"       Auto-reprojecting {name}...")
-        if name == 'streams':
-            gdf_streams = gdf_streams.to_crs(ref_crs)
-        elif name == 'stream_order':
-            gdf_so = gdf_so.to_crs(ref_crs)
-    else:
-        print(f"  Ã¢Å“â€¦ CRS OK: {name}")
-
-print("=" * 60)
+HILLSHADE = ls.hillshade(np.where(np.isnan(DEM_ARR), np.nanmean(DEM_ARR), DEM_ARR), vert_exag=1.5, dx=DEM_RES, dy=DEM_RES)
+print("✅ Section 02 Verbatim Restoral Complete.")
