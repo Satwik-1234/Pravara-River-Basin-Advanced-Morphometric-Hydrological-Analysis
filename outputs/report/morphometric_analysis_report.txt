@@ -25,31 +25,31 @@ Morphometric analysis was performed following the methodologies of Horton (1945)
 ----------------------------------------
 
 4.1 Linear Aspects
-  SB1: 6-order basin, 1456 stream segments, Mean Bifurcation Ratio (Rbm) = 2.453. Rbm outside 3Ã¢â‚¬â€œ5 range may indicate structural control.
-  SB2: 6-order basin, 532 stream segments, Mean Bifurcation Ratio (Rbm) = 4.140. Rbm values between 3Ã¢â‚¬â€œ5 indicate normal basins without structural disturbances.
-  SB3: 6-order basin, 1623 stream segments, Mean Bifurcation Ratio (Rbm) = 1.760. Rbm outside 3Ã¢â‚¬â€œ5 range may indicate structural control.
+  SB1: 6-order basin, 695 stream segments, Mean Bifurcation Ratio (Rbm) = 4.082. Rbm values between 3Ã¢â‚¬â€œ5 indicate normal basins without structural disturbances.
+  SB2: 6-order basin, 267 stream segments, Mean Bifurcation Ratio (Rbm) = 3.243. Rbm values between 3Ã¢â‚¬â€œ5 indicate normal basins without structural disturbances.
+  SB3: 6-order basin, 813 stream segments, Mean Bifurcation Ratio (Rbm) = 3.871. Rbm values between 3Ã¢â‚¬â€œ5 indicate normal basins without structural disturbances.
 
 4.2 Areal Aspects
-  SB1: Area=116.986 kmÃ‚Â², Dd=3.265 km/kmÃ‚Â², Re=0.687, Rc=0.304, Ff=0.371, Shape: Elongated.
-  SB2: Area=45.192 kmÃ‚Â², Dd=3.053 km/kmÃ‚Â², Re=0.808, Rc=0.311, Ff=0.513, Shape: Oval.
-  SB3: Area=149.969 kmÃ‚Â², Dd=2.982 km/kmÃ‚Â², Re=0.847, Rc=0.309, Ff=0.564, Shape: Oval.
+  SB1: Area=116.986 kmÃ‚Â², Dd=3.265 km/kmÃ‚Â², Re=0.527, Rc=0.304, Ff=0.218, Shape: Elongated.
+  SB2: Area=45.192 kmÃ‚Â², Dd=3.053 km/kmÃ‚Â², Re=0.461, Rc=0.311, Ff=0.167, Shape: More Elongated.
+  SB3: Area=149.969 kmÃ‚Â², Dd=2.982 km/kmÃ‚Â², Re=0.468, Rc=0.309, Ff=0.172, Shape: More Elongated.
 
 4.3 Relief Aspects
-  SB1: H=868 m, Rh=0.04889, Rn=2.834, HI=0.222, Stage: Peneplain (Old/Concave).
-  SB2: H=770 m, Rh=0.08207, Rn=2.351, HI=0.267, Stage: Peneplain (Old/Concave).
-  SB3: H=844 m, Rh=0.05176, Rn=2.517, HI=0.249, Stage: Peneplain (Old/Concave).
+  SB1: H=868 m, Rh=0.03751, Rn=2.834, HI=0.222, Stage: Peneplain (Old/Concave).
+  SB2: H=770 m, Rh=0.04680, Rn=2.351, HI=0.267, Stage: Peneplain (Old/Concave).
+  SB3: H=844 m, Rh=0.02855, Rn=2.517, HI=0.249, Stage: Peneplain (Old/Concave).
 
 5. STATISTICAL ANALYSIS
 ----------------------------------------
-Mean drainage density across all subbasins: 3.100 km/kmÃ‚Â². Moderate to low drainage density suggests permeable materials and gentle topography. PCA revealed that the first two principal components explained the majority of total variance (58.9% + 41.1% = 100.0%), with drainage density and relief parameters dominating PC1 and basin shape parameters dominating PC2.
+Mean drainage density across all subbasins: 3.100 km/kmÃ‚Â². Moderate to low drainage density suggests permeable materials and gentle topography. PCA revealed that the first two principal components explained the majority of total variance (57.5% + 42.5% = 100.0%), with drainage density and relief parameters dominating PC1 and basin shape parameters dominating PC2.
 
 6. WATERSHED PRIORITIZATION
 ----------------------------------------
 Three independent methods identified the following priority classes:
-  HIGH priority basins (most susceptible to erosion): SB1
-  MODERATE priority basins: SB2
+  HIGH priority basins (most susceptible to erosion): SB1, SB2
+  MODERATE priority basins: None
   LOW priority basins: SB3
-Inter-method agreement (Kendall's Ãâ€ž): M1 vs M2 = 1.000, M1 vs M3 = 0.333, M2 vs M3 = 0.333. Moderate agreement suggests parameter-sensitivity in ranking.
+Inter-method agreement (Kendall's Ãâ€ž): M1 vs M2 = 0.816, M1 vs M3 = 0.000, M2 vs M3 = 0.333. Moderate agreement suggests parameter-sensitivity in ranking.
 
 7. DISCUSSION
 ----------------------------------------
@@ -57,7 +57,7 @@ Drainage Density Implications:
   The watershed exhibits a mean Dd of 3.100 km/kmÃ‚Â². High Dd values indicate fine texture, less permeable lithology, and greater surface runoff propensity (Horton, 1945). Basins with Dd > 3.5 are expected to respond rapidly to rainfall events, increasing flood risk.
 
 Shape and Runoff Response:
-  Mean Elongation Ratio (Re) = 0.781. Sub-circular to circular basins (Re > 0.7) generate higher and faster flood peaks. Form factor and circularity ratio confirm this assessment.
+  Mean Elongation Ratio (Re) = 0.485. Elongated basins (Re < 0.6) have lower peak discharge and extended concentration time. Form factor and circularity ratio confirm this assessment.
 
 Relief and Erosion:
   Mean Ruggedness Number (Rn) = 2.567. High Rn reflects steep slopes combined with high drainage density, indicating high erosion potential and flash flood susceptibility (Strahler, 1964).
@@ -67,7 +67,7 @@ Hypsometric Stage:
 
 8. CONCLUSION
 ----------------------------------------
-This study presents a comprehensive morphometric analysis of a 3-subbasin watershed using SRTM 30 m DEM. The integrated analysis of linear, areal, and relief parameters reveals the geomorphic maturity, erosion susceptibility, and hydrological response characteristics of each subbasin. Subbasins SB1 are identified as highest priority for soil and water conservation interventions based on convergent evidence from three independent prioritization methods. Findings are reproducible and suitable for integration into watershed management planning frameworks.
+This study presents a comprehensive morphometric analysis of a 3-subbasin watershed using SRTM 30 m DEM. The integrated analysis of linear, areal, and relief parameters reveals the geomorphic maturity, erosion susceptibility, and hydrological response characteristics of each subbasin. Subbasins SB1, SB2 are identified as highest priority for soil and water conservation interventions based on convergent evidence from three independent prioritization methods. Findings are reproducible and suitable for integration into watershed management planning frameworks.
 
 9. REFERENCES
 ----------------------------------------

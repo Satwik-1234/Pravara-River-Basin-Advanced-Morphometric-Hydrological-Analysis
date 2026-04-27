@@ -6,9 +6,9 @@ ADVANCED MORPHOMETRIC ANALYSIS Ã¢â‚¬â€ SUPPLEMENTARY INTERPRETATIONS
 ----------------------------------------
 The Index of Active Tectonics (IAT) integrates four geomorphic proxies: Asymmetry Factor (AF), Transverse Symmetry (T), Valley Floor Width-to-Height Ratio (Vf), and Mountain Front Sinuosity (Smf), following El Hamdouni et al. (2008). AF values deviating substantially from 50 indicate basin tilting driven by differential uplift or lithological asymmetry. Vf < 0.5 is diagnostic of active incision associated with tectonic uplift, producing V-shaped valleys, whereas Vf > 1.0 reflects reduced tectonic activity and lateral widening. Low Smf (< 1.4) indicates a tectonically active, straight mountain front.
 
-  SB1: IAT=2.25 (Class 2 Ã¢â‚¬â€ High). AF=0.05, T=3.2653, Vf=13.852, Smf=3.915.
-  SB2: IAT=2.00 (Class 2 Ã¢â‚¬â€ High). AF=0.08, T=3.0530, Vf=13.925, Smf=4.557.
-  SB3: IAT=2.25 (Class 2 Ã¢â‚¬â€ High). AF=0.05, T=2.9820, Vf=12.130, Smf=4.786.
+  SB1: IAT=2.25 (Class 2 Ã¢â‚¬â€ High). AF=0.04, T=3.2653, Vf=13.852, Smf=3.005.
+  SB2: IAT=2.00 (Class 2 Ã¢â‚¬â€ High). AF=0.05, T=3.0530, Vf=13.925, Smf=2.598.
+  SB3: IAT=2.25 (Class 2 Ã¢â‚¬â€ High). AF=0.03, T=2.9820, Vf=12.130, Smf=2.640.
 
 11. CHANNEL STEEPNESS & CONCAVITY
 ----------------------------------------

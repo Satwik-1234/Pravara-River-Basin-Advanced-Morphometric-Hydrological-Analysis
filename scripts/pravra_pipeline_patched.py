@@ -299,9 +299,15 @@ def snap_pour_points(pour_pts_gdf, flow_acc_path, snap_distance_m=300):
     snap_cells = int(snap_distance_m / res)
     snapped_pts = []
 
+    # FIX Bug 2: capture original geometries BEFORE we build the result so
+    # snap_distance_m measures original -> snapped, not snapped -> snapped.
+    orig_geoms = list(pour_pts_gdf.geometry)
+
     for idx, row in pour_pts_gdf.iterrows():
+        # FIX Bug 1: use int(round()) — bare int() truncates and causes a
+        # systematic 1-pixel offset toward the top-left corner of the raster.
         px_c, px_r = ~transform * (row.geometry.x, row.geometry.y)
-        px_c, px_r = int(px_c), int(px_r)
+        px_c, px_r = int(round(px_c)), int(round(px_r))
 
         r0 = max(0, px_r - snap_cells)
         r1 = min(fa_data.shape[0], px_r + snap_cells + 1)
@@ -322,10 +328,11 @@ def snap_pour_points(pour_pts_gdf, flow_acc_path, snap_distance_m=300):
         snapped_pts.append(Point(snap_x, snap_y))
 
     result = pour_pts_gdf.copy()
-    result['geometry']       = snapped_pts
+    result['geometry'] = snapped_pts
+    # FIX Bug 2: distance from ORIGINAL point to snapped point (not self).
     result['snap_distance_m'] = [
-        row.geometry.distance(snapped_pts[i])
-        for i, (_, row) in enumerate(pour_pts_gdf.iterrows())
+        orig_geoms[i].distance(snapped_pts[i])
+        for i in range(len(snapped_pts))
     ]
     return result
 
@@ -384,8 +391,11 @@ for key in RASTER_KEYS:
         print(f"  Ã¢Å“â€¦ {key} OK (already projected)")
 
 # Optional stream order raster
-if os.path.exists(DATA_PATHS.get('stream_order_raster', '')):
-    so_path = DATA_PATHS['stream_order_raster']
+# FIX Bug 3: DATA_PATHS.get(..., '') makes os.path.exists("") return False
+# silently, turning this block into dead code when the key is absent.
+# Use an explicit None check instead.
+so_path = DATA_PATHS.get('stream_order_raster')
+if so_path and os.path.exists(so_path):
     so_info = get_raster_info(so_path)
     if NEEDS_REPROJECT and CRS.from_user_input(so_info['crs']).is_geographic:
         dst = os.path.join(OUT_DIR, "stream_order_utm.tif")
@@ -419,16 +429,12 @@ print(f"  Ã¢Å“â€¦ Subbasins: {len(gdf_sub)} | CRS: {gdf_sub.crs}")
 
 # Ensure unique basin ID Ã¢â‚¬â€ try to detect from existing columns
 if 'basin_id' not in gdf_sub.columns:
-    # Try to use 'name' column if present (Pravrabasin.shp has 'name' field)
     if 'name' in gdf_sub.columns and gdf_sub['name'].notna().all():
-        # Extract subbasin name from the 'AreaSqkm' column which has "Subbasin-X"
-        # Try AreaSqkm field first (Pravrabasin.shp stores subbasin names there)
-        if 'AreaSqkm' in gdf_sub.columns:
-            names = gdf_sub['AreaSqkm'].astype(str).str.extract(r'(Subbasin-\d+)')[0]
-            if names.notna().sum() == len(gdf_sub):
-                gdf_sub['basin_id'] = names
-            else:
-                gdf_sub['basin_id'] = [f"SB{i+1}" for i in range(len(gdf_sub))]
+        gdf_sub['basin_id'] = gdf_sub['name'].astype(str).str.replace('Subbasin-', 'SB', regex=False)
+    elif 'AreaSqkm' in gdf_sub.columns:
+        names = gdf_sub['AreaSqkm'].astype(str).str.extract(r'(Subbasin-\d+)')[0]
+        if names.notna().sum() == len(gdf_sub):
+            gdf_sub['basin_id'] = names.str.replace('Subbasin-', 'SB', regex=False)
         else:
             gdf_sub['basin_id'] = [f"SB{i+1}" for i in range(len(gdf_sub))]
     else:
@@ -439,6 +445,8 @@ print(f"  Basin IDs: {gdf_sub['basin_id'].tolist()}")
 gdf_streams = gpd.read_file(DATA_PATHS['streams'])
 gdf_streams = fix_geometries(gdf_streams, "streams")
 gdf_streams = explode_multipart(gdf_streams, "streams")
+if "basin_id" in gdf_streams.columns:
+    gdf_streams = gdf_streams.drop(columns=["basin_id"])
 gdf_streams = gdf_streams.to_crs(UTM_EPSG)
 print(f"  Ã¢Å“â€¦ Streams: {len(gdf_streams)} segments | CRS: {gdf_streams.crs}")
 
@@ -446,30 +454,126 @@ print(f"  Ã¢Å“â€¦ Streams: {len(gdf_streams)} segments | CRS: {gdf_stre
 gdf_so = gpd.read_file(DATA_PATHS['stream_order_shp'])
 gdf_so = fix_geometries(gdf_so, "stream_order")
 gdf_so = explode_multipart(gdf_so, "stream_order")
+if "basin_id" in gdf_so.columns:
+    gdf_so = gdf_so.drop(columns=["basin_id"])
 gdf_so = gdf_so.to_crs(UTM_EPSG)
 
-# Detect stream order column
-# Ã¢â€â‚¬Ã¢â€â‚¬ Detect stream order column dynamically Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-ORDER_COL_CANDIDATES = ['grid_code', 'GRIDCODE', 'Grid_Code',
-                         'strahler', 'Strahler', 'order', 'ORDER',
-                         'StreamOrde', 'str_order']
+# ── Detect Strahler order column ─────────────────────────────────────────────
+ORDER_COL_CANDIDATES = [
+    'grid_code', 'GRIDCODE', 'Grid_Code', 'GRID_CODE',
+    'strahler',  'Strahler',  'order',    'ORDER',
+    'StreamOrde','str_order',
+]
 ORDER_COL = None
-for cand in ORDER_COL_CANDIDATES:
-    if cand in gdf_so.columns:
-        ORDER_COL = cand
-        print(f"  Ã¢Å“â€¦ Stream order column auto-detected: '{ORDER_COL}'")
+for _cand in ORDER_COL_CANDIDATES:
+    if _cand in gdf_so.columns:
+        ORDER_COL = _cand
+        print(f"  Stream order column detected: '{ORDER_COL}'")
         break
 
 if ORDER_COL is None:
     raise ValueError(
-        f"Cannot detect stream order column. Columns: {gdf_so.columns.tolist()}\n"
-        "Please set ORDER_COL manually below."
+        f"Cannot detect stream order column. "
+        f"Available: {gdf_so.columns.tolist()}"
     )
-print(f"  Ã¢Å“â€¦ Stream order col detected: '{ORDER_COL}' "
-      f"| Orders: {sorted(gdf_so[ORDER_COL].unique())}")
 
 gdf_so[ORDER_COL] = gdf_so[ORDER_COL].astype(int)
-MAX_ORDER = int(gdf_so[ORDER_COL].max())
+MAX_ORDER          = int(gdf_so[ORDER_COL].max())
+print(f"  Orders in global layer: {sorted(gdf_so[ORDER_COL].unique())}")
+
+# ── Robust stream-to-subbasin assignment ─────────────────────────────────────
+#
+# gpd.clip() drops order-5 streams that lie on or near subbasin boundaries
+# (they get clipped to zero-length stubs and vanish).
+#
+# Three-tier fix:
+#   1. intersects check       — find every basin a stream touches
+#   2. midpoint containment   — assign each boundary segment to the basin
+#                               whose interior contains the segment midpoint
+#   3. largest-overlap rule   — fallback when midpoint is exactly on the edge
+#   4. 100 m buffer fallback  — catches streams just outside the polygon
+#
+print("\n  Assigning streams to subbasins (robust intersect + midpoint method)...")
+
+_basin_geoms     = {r["basin_id"]: r.geometry for _, r in gdf_sub.iterrows()}
+_basin_geoms_buf = {bid: geom.buffer(100) for bid, geom in _basin_geoms.items()}
+_bid_list        = list(_basin_geoms.keys())
+
+clipped_parts = []
+
+for _, _seg in gdf_so[[ORDER_COL, "geometry"]].iterrows():
+    _geom  = _seg.geometry
+    _order = int(_seg[ORDER_COL])
+
+    if _geom is None or _geom.is_empty:
+        continue
+
+    # Tier 1: intersects
+    _cands = [b for b, bg in _basin_geoms.items() if _geom.intersects(bg)]
+
+    # Tier 4: 100 m buffer fallback
+    if not _cands:
+        _cands = [b for b, bg in _basin_geoms_buf.items() if _geom.intersects(bg)]
+
+    if not _cands:
+        continue   # truly outside all basins
+
+    if len(_cands) == 1:
+        _assigned = _cands[0]
+        try:
+            _cgeom = _geom.intersection(_basin_geoms[_assigned])
+        except Exception:
+            _cgeom = _geom
+    else:
+        # Tier 2: midpoint containment
+        try:
+            _midpt = _geom.interpolate(0.5, normalized=True)
+        except Exception:
+            _midpt = _geom.centroid
+
+        _assigned = None
+        for _b in _cands:
+            if _basin_geoms[_b].contains(_midpt):
+                _assigned = _b
+                break
+
+        # Tier 3: largest overlap
+        if _assigned is None:
+            _best = -1.0
+            for _b in _cands:
+                try:
+                    _ln = _geom.intersection(_basin_geoms[_b]).length
+                except Exception:
+                    _ln = 0.0
+                if _ln > _best:
+                    _best     = _ln
+                    _assigned = _b
+
+        try:
+            _cgeom = _geom.intersection(_basin_geoms[_assigned])
+        except Exception:
+            _cgeom = _geom
+
+    # Keep original geometry if intersection collapsed to a point
+    if _cgeom is None or _cgeom.is_empty:
+        _cgeom = _geom
+
+    clipped_parts.append({ORDER_COL: _order,
+                           "geometry": _cgeom,
+                           "basin_id": _assigned})
+
+if clipped_parts:
+    gdf_so_sub = gpd.GeoDataFrame(clipped_parts, crs=gdf_so.crs)
+    for _b in _bid_list:
+        _ords = sorted(gdf_so_sub[gdf_so_sub["basin_id"] == _b][ORDER_COL].unique())
+        print(f"  {_b}: Strahler orders present after assignment: {_ords}")
+else:
+    print("  WARNING: robust assignment yielded nothing -- falling back to sjoin")
+    gdf_so_sub = gpd.sjoin(
+        gdf_so[[ORDER_COL, "geometry"]],
+        gdf_sub[["basin_id", "geometry"]],
+        how="left", predicate="intersects",
+    ).dropna(subset=["basin_id"])
 
 # Pour points (optional but important for snapping)
 POUR_POINTS_OK = False
@@ -628,53 +732,100 @@ def compute_linear_aspects(gdf_streams_clipped, order_col, basin_id):
     """
     Compute stream order statistics for one subbasin.
     Returns per-order DataFrame and summary ratios.
+
+    FIX (Issue 1): Lu is computed from raw (un-buffered) segment geometry so
+    that total stream length is consistent with the Strahler network.  The
+    buffer + dissolve + explode trick is kept ONLY for counting distinct stream
+    segments (Nu); it must NOT be used for length, because buffering inflates
+    geometry and dissolving merges adjacent segments.
+
+    FIX (Issue 2+3): Bifurcation ratios are computed by walking consecutive
+    INTEGER order pairs (u, u+1) across the full range min_order..max_order-1.
+    If an intermediate order is absent from this basin (e.g. order 5 in SB2/SB3)
+    the Rb for that pair is NaN, which propagates correctly into Rbm/wRbm
+    instead of silently bridging N_order4 -> N_order6.
     """
     rows = []
-    orders = sorted(gdf_streams_clipped[order_col].unique())
+    orders_present = sorted(gdf_streams_clipped[order_col].unique())
 
-    for u in orders:
-        segs = gdf_streams_clipped[gdf_streams_clipped[order_col] == u]
-        nu   = len(segs)
-        lu   = segs.geometry.length.sum()
-        lsm  = lu / nu if nu > 0 else 0
+    for u in orders_present:
+        segs_raw = gdf_streams_clipped[gdf_streams_clipped[order_col] == u].copy()
+
+        # --- Nu: count distinct stream segments via buffer+dissolve+explode ---
+        if len(segs_raw) > 0:
+            segs_buf = segs_raw.copy()
+            buf_size = 50.0 if u >= 4 else 1.0
+            segs_buf.geometry = segs_buf.geometry.buffer(buf_size)
+            dissolved = segs_buf.dissolve()
+            exploded  = dissolved.explode(index_parts=False)
+            nu = len(exploded)
+        else:
+            nu = 0
+
+        # --- Lu: sum of RAW (un-buffered) segment lengths ---
+        lu  = segs_raw.geometry.length.sum()
+        lsm = lu / nu if nu > 0 else 0.0
         rows.append({'basin_id': basin_id, 'order': u,
                      'Nu': nu, 'Lu': lu, 'Lsm': lsm})
 
     df = pd.DataFrame(rows).set_index('order')
 
-    # Bifurcation ratio Rb = Nu / Nu+1
+    # ---- Bifurcation ratio: walk consecutive INTEGER orders ----------------
+    # This ensures a missing order-5 gives Rb=NaN (physically correct)
+    # instead of bridging order-4 to order-6 (Strahler violation).
     df['Rb'] = np.nan
-    for i in range(len(df) - 1):
-        o1, o2 = orders[i], orders[i+1]
-        if df.loc[o2, 'Nu'] > 0:
-            df.loc[o1, 'Rb'] = df.loc[o1, 'Nu'] / df.loc[o2, 'Nu']
+    min_o = int(df.index.min())
+    max_o = int(df.index.max())
+    for o1 in range(min_o, max_o):        # o1 = 1,2,3,4,5 ...
+        o2 = o1 + 1
+        if o1 in df.index and o2 in df.index:
+            nu2 = df.loc[o2, 'Nu']
+            if nu2 > 0:
+                df.loc[o1, 'Rb'] = df.loc[o1, 'Nu'] / nu2
+            # else: Rb stays NaN (Nu+1 == 0 would be a degenerate case)
+        # If either order is absent, Rb for this pair stays NaN — correct.
 
-    # Stream length ratio RL = Lsm(u) / Lsm(u-1)
+    # ---- Stream length ratio RL = Lsm(u) / Lsm(u-1) ----------------------
     df['RL'] = np.nan
-    for i in range(1, len(df)):
-        o_prev, o_curr = orders[i-1], orders[i]
+    for i in range(1, len(orders_present)):
+        o_prev = orders_present[i - 1]
+        o_curr = orders_present[i]
         if df.loc[o_prev, 'Lsm'] > 0:
             df.loc[o_curr, 'RL'] = df.loc[o_curr, 'Lsm'] / df.loc[o_prev, 'Lsm']
 
-    # Mean bifurcation ratio (arithmetic)
+    # ---- Mean bifurcation ratio (arithmetic over valid pairs only) ---------
     Rb_vals = df['Rb'].dropna()
     Rbm = Rb_vals.mean() if len(Rb_vals) > 0 else np.nan
 
-    # Weighted mean bifurcation ratio (Strahler, 1957)
+    # ---- Weighted mean bifurcation ratio (Strahler, 1957) ------------------
     wRbm = np.nan
     if len(Rb_vals) > 0:
         rb_list, wt_list = [], []
-        for i in range(len(orders) - 1):
-            o1, o2 = orders[i], orders[i+1]
-            rb_val = df.loc[o1, 'Rb']
-            if not np.isnan(rb_val) and df.loc[o2, 'Nu'] > 0:
-                rb_list.append(rb_val)
-                wt_list.append(df.loc[o1, 'Nu'] + df.loc[o2, 'Nu'])
-
+        for o1 in range(min_o, max_o):
+            o2 = o1 + 1
+            if o1 in df.index and o2 in df.index:
+                rb_val = df.loc[o1, 'Rb']
+                if not pd.isna(rb_val) and df.loc[o2, 'Nu'] > 0:
+                    rb_list.append(rb_val)
+                    wt_list.append(df.loc[o1, 'Nu'] + df.loc[o2, 'Nu'])
         if len(rb_list) > 0:
             wts_arr = np.array(wt_list)
             if wts_arr.sum() > 0:
                 wRbm = np.average(rb_list, weights=wts_arr)
+
+    # ---- Strahler topology check -------------------------------------------
+    strahler_ok = True
+    for o1 in range(min_o, max_o):
+        o2 = o1 + 1
+        o1_present = o1 in df.index and df.loc[o1, 'Nu'] > 0
+        o2_present = o2 in df.index and df.loc[o2, 'Nu'] > 0
+        if o2_present and not o1_present:
+            print(f"  *** STRAHLER VIOLATION [{basin_id}]: "
+                  f"order {o2} exists but order {o1} is absent/empty! "
+                  f"Re-examine stream delineation.")
+            strahler_ok = False
+    if strahler_ok:
+        print(f"  [{basin_id}] Strahler topology OK for orders {min_o}-{max_o}")
 
     return df.reset_index(), Rbm, wRbm
 
@@ -765,24 +916,38 @@ for _, row in gdf_sub.iterrows():
 
     A  = geom.area          # mÃ‚Â²
     P  = geom.length        # m
-    Lb = longest_flow_path(geom, FACC_ARR, DEM_TRANSFORM, DEM_RES)
+    if 'long_len' in row and pd.notnull(row['long_len']):
+        Lb = float(row['long_len'])
+    else:
+        Lb = longest_flow_path(geom, FACC_ARR, DEM_TRANSFORM, DEM_RES)
 
-    # Streams inside basin
-    segs = gdf_so_sub[gdf_so_sub['basin_id'] == bid]
-    total_stream_length = segs.geometry.length.sum() if len(segs) > 0 else 0
-    Nu_total = len(segs)
+    # FIX Issue 1: Use LINEAR_PER_ORDER as the single authoritative source for
+    # stream length (sum of raw per-order Lu) and stream counts. This ensures
+    # Total_Stream_Length_km, Dd, Lg, C and Rn are all internally consistent
+    # with the stream-order summary table.
+    if bid in LINEAR_PER_ORDER:
+        df_lin   = LINEAR_PER_ORDER[bid]
+        Nu_total = int(df_lin['Nu'].sum())
+        N1       = int(df_lin.loc[df_lin['order'] == 1, 'Nu'].sum()) \
+                   if 1 in df_lin['order'].values else 0
+        # Total stream length: sum of raw-geometry Lu for all orders (metres)
+        total_stream_length_m = float(df_lin['Lu'].sum())
+    else:
+        segs = gdf_so_sub[gdf_so_sub['basin_id'] == bid]
+        Nu_total = len(segs)
+        N1       = len(segs[segs[ORDER_COL] == 1])
+        total_stream_length_m = segs.geometry.length.sum() if len(segs) > 0 else 0.0
 
-    # ----- parameters -----
+    # ----- unit conversions -----
     A_km2   = A   / 1e6
     P_km    = P   / 1e3
     Lb_km   = Lb  / 1e3
-    L_km    = total_stream_length / 1e3
+    L_km    = total_stream_length_m / 1e3   # authoritative stream length [km]
 
     Dd = L_km  / A_km2 if A_km2 > 0 else np.nan   # Drainage density  [km/kmÃ‚Â²]
     Fs = Nu_total / A_km2 if A_km2 > 0 else np.nan # Stream frequency  [streams/kmÃ‚Â²]
     # Ã¢â€â‚¬Ã¢â€â‚¬ Correct Texture Ratio: use first-order streams only Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-    segs_first_order = segs[segs[ORDER_COL] == 1]   # first-order (Strahler) only
-    N1 = len(segs_first_order)                       # count of 1st-order streams
+    
 
     T  = N1 / P_km  if P_km  > 0 else np.nan        # Texture ratio (Smith, 1950)
     Ff = A_km2   / (Lb_km**2)     if Lb_km > 0 else np.nan  # Form factor (Horton,1932)
@@ -1244,8 +1409,12 @@ def finalize_map(fig, ax_map, ax_panel, filename, add_panel_elements=True, sourc
     if add_panel_elements:
         add_compass_rose_panel(ax_panel)
         add_scale_bar_panel(ax_panel, compute_utm_extent())
-    fig.savefig(os.path.join(MAPS_DIR, filename), dpi=220, bbox_inches='tight', facecolor='white')
-    plt.close(fig); print(f"  Saved: {filename}")
+    try:
+        fig.savefig(os.path.join(MAPS_DIR, filename), dpi=220, bbox_inches='tight', facecolor='white')
+        print(f"  Saved: {filename}")
+    except Exception as e:
+        print(f"  [!] Warning: Failed to save map {filename}: {e}")
+    plt.close(fig)
 
 def finalize_and_save(fig, ax, utm_extent, filename, n_ticks=4):
     """Backward-compat shim updated for the Unified Frame."""
@@ -1255,8 +1424,12 @@ def finalize_and_save(fig, ax, utm_extent, filename, n_ticks=4):
         apply_dms_grid(ax, utm_extent, n_ticks)
         add_compass_rose_panel(ax, cx_pos=0.08, cy_pos=0.15, r=0.05)
         add_scale_bar_panel(ax, utm_extent)
-        fig.savefig(os.path.join(MAPS_DIR, filename), dpi=220, bbox_inches='tight')
-        plt.close(fig); print(f"  Saved: {filename}")
+        try:
+            fig.savefig(os.path.join(MAPS_DIR, filename), dpi=220, bbox_inches='tight')
+            print(f"  Saved: {filename}")
+        except Exception as e:
+            print(f"  [!] Warning: Failed to save map {filename}: {e}")
+        plt.close(fig)
 
 
 def safe_normalise(arr, lo_pct=2, hi_pct=98):
@@ -2017,17 +2190,21 @@ print("=" * 60)
 print("SECTION 7 Ã¢â‚¬â€ PLOTLY INTERACTIVE VISUALIZATION SUITE")
 print("=" * 60)
 
-HTML_DIR = os.path.join(PLOTS_DIR, "html/")
+HTML_DIR = os.path.join(OUT_DIR, "html/")
 os.makedirs(HTML_DIR, exist_ok=True)
 
 
 def save_fig(fig, name):
     """Save Plotly figure as self-contained HTML (Bundled JS) to fix errors."""
-    html_path = os.path.join(HTML_DIR, f"{name}.html")
-    # include_plotlyjs=True converts JS to string inside HTML (fixes CSP/CDN errors)
-    fig.write_html(html_path, include_plotlyjs=True)
-    print(f"  Ã¢Å“â€¦ {name}.html")
-    return html_path
+    try:
+        html_path = os.path.join(HTML_DIR, f"{name}.html")
+        # include_plotlyjs=True converts JS to string inside HTML (fixes CSP/CDN errors)
+        fig.write_html(html_path, include_plotlyjs=True)
+        print(f"  [OK] {name}.html")
+        return html_path
+    except Exception as e:
+        print(f"  [!] Warning: Failed to save HTML plot {name}: {e}")
+        return None
 
 
 # Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
@@ -2699,14 +2876,8 @@ print(f"\nÃ¢Å“â€¦ Full report saved: {report_path}")
 print("\nÃ¢Å“â€¦ SECTION 9 complete.")
 
 print("\n" + "=" * 60)
-print("  Ã°Å¸Å½â€°  ALL SECTIONS COMPLETE")
+print("SECTION 9 COMPLETE — CORE MORPHOMETRIC DATA READY")
 print("=" * 60)
-print(f"  Output root: {OUT_DIR}")
-print(f"  Maps (9)   : {MAPS_DIR}")
-print(f"  Plots HTML : {HTML_DIR}")
-print(f"  Tables     : {TABLES_DIR}")
-print(f"  Shapefiles : {SHAPES_DIR}")
-print(f"  Report     : {REPORT_DIR}")
 
 
 print("\n" + "=" * 60)
@@ -3774,9 +3945,15 @@ df_hazard_r = df_hazard[rank_cols].copy()
 for col in rank_cols:
     df_hazard[f'rank_{col}'] = df_hazard_r[col].rank(ascending=False, method='min')
 df_hazard['FHI_rank'] = df_hazard[[f'rank_{c}' for c in rank_cols]].mean(axis=1)
-df_hazard['FHI_priority'] = pd.qcut(
-    df_hazard['FHI_rank'], q=3, labels=['High','Moderate','Low'], duplicates='drop'
-)
+try:
+    # Use qcut but avoid label mismatch if duplicates are dropped
+    fhi_cuts = pd.qcut(df_hazard['FHI_rank'], q=3, duplicates='drop')
+    n_bins = len(fhi_cuts.cat.categories)
+    labels = ['High', 'Moderate', 'Low'][:n_bins]
+    df_hazard['FHI_priority'] = pd.qcut(df_hazard['FHI_rank'], q=3, labels=labels, duplicates='drop')
+except Exception as e:
+    print(f"  [!] Warning: Priority binning failed ({e}). Assigning default priority.")
+    df_hazard['FHI_priority'] = 'Moderate'
 
 df_hazard.to_csv(os.path.join(TABLES_DIR, "flood_hazard_indices.csv"))
 print(f"\n  Ã¢Å“â€¦ Flood hazard table saved")
@@ -4123,7 +4300,7 @@ print(f"  Total new plots : 14 interactive Plotly HTML files")
 =============================================================================
 """
 
-# Ã¢â€â‚¬Ã¢â€â‚¬ Standard imports (all should already be in memory from Sections 0Ã¢â‚¬â€œ13) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# ── Standard imports (all should already be in memory from Sections 0–13) ────
 import os
 import warnings
 import numpy as np
@@ -5869,8 +6046,9 @@ print("Ã°Å¸â€œÂ¦ Zipping all outputs...")
 with zipfile.ZipFile(EXPORT_PATH, 'w', zipfile.ZIP_DEFLATED) as zf:
     for root, dirs, fnames in os.walk(OUT_DIR):
         for fname in fnames:
+            if fname.endswith(".zip"): continue  # Avoid recursive zipping
             full_path = os.path.join(root, fname)
-            arc_name  = os.path.relpath(full_path, "E:/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/Pravara-River-Basin-Advanced-Morphometric-Hydrological-Analysis-main/outputs/")
+            arc_name  = os.path.relpath(full_path, OUT_DIR)
             zf.write(full_path, arc_name)
 
 size_mb = os.path.getsize(EXPORT_PATH) / 1e6
@@ -5884,5 +6062,5 @@ with zipfile.ZipFile(EXPORT_PATH, 'r') as zf:
         print(f"  {name:<70s}  {info.file_size/1024:>8.1f} KB")
 
 print("\nÃ¢Â¬â€¡Ã¯Â¸Â  Starting download...")
-files.download(EXPORT_PATH)
+# files.download(EXPORT_PATH)
 
