@@ -96,6 +96,25 @@ def get_clip_patch(ax, shp_path):
         patches.append(MPath(verts, codes))
     return PathPatch(MPath.make_compound_path(*patches), transform=ax.transData)
 
+def get_ambient_mask(ax, shp_path):
+    from shapely.geometry import box
+    gdf = gpd.read_file(shp_path)
+    poly = gdf.geometry.unary_union
+    b = gdf.total_bounds
+    outer = box(b[0]-60000, b[1]-60000, b[2]+60000, b[3]+60000)
+    inv = outer.difference(poly)
+    inv_polys = [inv] if inv.geom_type == 'Polygon' else list(inv.geoms)
+    patches = []
+    for p in inv_polys:
+        verts = np.array(p.exterior.coords)
+        codes = [MPath.MOVETO] + [MPath.LINETO]*(len(verts)-2) + [MPath.CLOSEPOLY]
+        for interior in p.interiors:
+            iv = np.array(interior.coords)
+            verts = np.concatenate([verts, iv])
+            codes += [MPath.MOVETO] + [MPath.LINETO]*(len(iv)-2) + [MPath.CLOSEPOLY]
+        patches.append(MPath(verts, codes))
+    return PathPatch(MPath.make_compound_path(*patches), facecolor='white', edgecolor='none', alpha=0.35, zorder=2, transform=ax.transData)
+
 def add_line_legend_panel(ax, colors, labels, title='Legend', internal=False):
     if internal:
         # Bottom-Right Inside Grid (Tucked deeper into corner)
@@ -125,12 +144,15 @@ def render_ultimate_map(m_cfg, boundary_path):
     
     gdf_bound = gpd.read_file(boundary_path).dissolve()
     
-    # Basemap (Always ESRI World Topo)
-    ctx.add_basemap(ax, crs='EPSG:32643', source=ESRI_WORLD_TOPO, alpha=0.8, attribution=False, zorder=0, zoom=10)
+    # Basemap (Always ESRI World Topo across full canvas)
+    ctx.add_basemap(ax, crs='EPSG:32643', source=ESRI_WORLD_TOPO, alpha=0.90, attribution=False, zorder=0, zoom=10)
     
-    # Clip Boundary
+    # Ambient Dimming Mask Outside Boundary (Leaves basemap visible outside with elegant 35% veil)
+    mask_outside = get_ambient_mask(ax, boundary_path)
+    ax.add_patch(mask_outside)
+    
+    # Clip Boundary Patch for thematic raster
     patch = get_clip_patch(ax, boundary_path)
-    ax.set_clip_path(patch)
 
     # ── MAP CORE CONTENT ──────────────────────────────────────────────────────
     data_path = m_cfg['path']
@@ -138,8 +160,9 @@ def render_ultimate_map(m_cfg, boundary_path):
         print(f"Warning: Path {data_path} not found.")
         return
 
-    # Draw Study Area Boundary (Always, on top)
-    gdf_bound.plot(ax=ax, facecolor='none', edgecolor='black', linewidth=2.0, zorder=100)
+    # Draw Study Area Boundary (Always on top with red crimson line and subtle white halo)
+    gdf_bound.plot(ax=ax, facecolor='none', edgecolor='white', linewidth=3.4, alpha=0.4, zorder=99)
+    gdf_bound.plot(ax=ax, facecolor='none', edgecolor='#991b1b', linewidth=2.2, zorder=100)
 
     if m_cfg.get('legend_type') == 'lines':
         if m_cfg['id'] == '23': # Stream Order (Vector)
@@ -185,10 +208,11 @@ def render_ultimate_map(m_cfg, boundary_path):
                 from matplotlib.colors import LogNorm
                 d_safe = np.where(data <= 0, np.nanmin(data[data > 0]) if np.any(data > 0) else 1e-6, data)
                 norm = LogNorm(vmin=np.nanmin(d_safe), vmax=np.nanmax(d_safe))
-                im = ax.imshow(d_safe, extent=ext, cmap=m_cfg['cmap'], alpha=1.0, zorder=5, norm=norm)
+                im = ax.imshow(d_safe, extent=ext, cmap=m_cfg['cmap'], alpha=0.92, zorder=5, norm=norm)
             else:
                 norm = mcolors.Normalize(vmin=np.nanmin(data), vmax=np.nanmax(data))
-                im = ax.imshow(data, extent=ext, cmap=m_cfg['cmap'], alpha=1.0, zorder=5, norm=norm)
+                im = ax.imshow(data, extent=ext, cmap=m_cfg['cmap'], alpha=0.92, zorder=5, norm=norm)
+            im.set_clip_path(patch)
             
             divider = make_axes_locatable(ax)
             cax = divider.append_axes("right", size="3%", pad=0.7)

@@ -1,4 +1,4 @@
-basin_id,GAI_mean,GAI_max,GAI_high_frac
-SB1,0.4506,0.9881,0.0876
-SB2,0.4445,1.0,0.0899
-SB3,0.4301,1.0,0.0633
+basin_id,GAI_mean,GAI_max,GAI_std
+SB1,0.342,1.0,0.137
+SB2,0.346,1.0,0.154
+SB3,0.346,1.0,0.166

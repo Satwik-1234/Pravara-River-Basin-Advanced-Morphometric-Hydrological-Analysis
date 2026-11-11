@@ -1,80 +1,61 @@
 """
-run_pipeline.py
-
-Master orchestrator script that runs all 18 sections of the Pravara River Basin
-morphometric and hydrological analysis sequentially.
+=============================================================================
+PRAVARA RIVER BASIN: MASTER PRODUCTION PIPELINE RUNNER
+=============================================================================
+Unified CLI entrypoint executing:
+  1. pravra_consolidated_pipeline.py (Sections 00 - 18 End-to-End)
+  2. ultimate_publication_renderer.py (25 Institutional 600-DPI Maps)
+=============================================================================
 """
 
 import os
-import subprocess
 import sys
+import subprocess
+from pathlib import Path
 
 
-def run_script(script_name):
-    print(f"\n{'='*60}")
-    print(f"🚀 Running: {script_name}")
-    print(f"{'='*60}")
+def run_step(title, script_name):
+    print("\n" + "=" * 70)
+    print(f"🚀 STEP: {title}")
+    print(f"   Executing: scripts/{script_name}")
+    print("=" * 70)
 
-    script_path = os.path.join("scripts", script_name)
-
-    if not os.path.exists(script_path):
+    script_path = Path(__file__).resolve().parent / script_name
+    if not script_path.exists():
         print(f"❌ Error: Script '{script_path}' not found.")
         return False
 
     try:
-        # Run the script and stream output
-        result = subprocess.run([sys.executable, script_path], check=True, text=True)
-        print(f"✅ Successfully completed: {script_name}")
+        subprocess.run([sys.executable, str(script_path)], check=True)
+        print(f"✅ COMPLETED: {title}")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"❌ Pipeline failed at: {script_name}")
-        print(f"Exit code: {e.returncode}")
+        print(f"❌ FAILED: {title} (Exit Code: {e.returncode})")
         return False
 
 
 def main():
-    print("==================================================")
-    print("  PRAVARA RIVER BASIN ANALYSIS PIPELINE STARTER   ")
-    print("==================================================")
+    print("=" * 70)
+    print("  PRAVARA RIVER BASIN — PRODUCTION ANALYSIS PIPELINE (GOOGLE STD)  ")
+    print("=" * 70)
 
-    # List of scripts in execution order based on project architecture
-    # Note: excluding section_00 for zip extraction assuming data is unzipped
-    # excluding section_01 environment as that's already setup locally.
-    scripts = [
-        "section_02_data_paths.py",
-        "section_03_morphometry.py",
-        "section_04_maps.py",
-        "section_05_statistics.py",
-        "section_06_prioritization.py",
-        "section_07_plotly.py",
-        "section_08_export.py",
-        "section_09_report.py",
-        "section_10_tectonic.py",
-        "section_11_geomorphic.py",
-        "section_12_anomaly.py",
-        "section_13_flood.py",
-        "section_14_runoff.py",
-        "section_15_rusle.py",
-        "section_16_swc.py",
-        "section_17_hydrograph.py",
-        "section_18_hydraulics.py",
-    ]
-
-    # Ensure starting from the repository root
-    if not os.path.exists("scripts"):
-        print("Please run this script from the repository root directory.")
-        print("Example: python scripts/run_pipeline.py")
+    # Step 1: Execute Master Analytical Pipeline (Morphometry, Hydrology, SWC, Hydraulics)
+    ok1 = run_step("Analytical Pipeline (Sections 00–18)", "pravra_consolidated_pipeline.py")
+    if not ok1:
         sys.exit(1)
 
-    for script in scripts:
-        success = run_script(script)
-        if not success:
-            print("\nPipeline execution halted due to errors.")
-            sys.exit(1)
+    # Step 2: Render 25 High-Resolution Atlas Cartography Maps (Lohara/Tuljapur Standard)
+    ok2 = run_step("Atlas Cartography Suite (300 DPI Transparent Atlas Maps)", "pravara_atlas_engine.py")
+    if not ok2:
+        sys.exit(1)
 
-    print("\n==================================================")
-    print("🎉 FULL PIPELINE COMPLETED SUCCESSFULLY 🎉")
-    print("==================================================")
+    print("\n" + "=" * 70)
+    print("🎉 ALL PIPELINE STEPS COMPLETED SUCCESSFULLY!")
+    print("   • Master Tables: outputs/tables/")
+    print("   • Thematic Rasters: outputs/thematic_rasters/")
+    print("   • Publication Maps (600 DPI): outputs/ultimate_publication_suite/")
+    print("   • Technical Audit: reports/AUDIT_AND_JUSTIFICATION_REPORT.md")
+    print("=" * 70)
 
 
 if __name__ == "__main__":
